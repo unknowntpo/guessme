@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GUESSME - AI Drawing Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F4EFEA;
+      --text: #383838;
+      --primary: #6FC2FF;
+      --primary-hover: #2BA5FF;
+      --accent: #FFDE00;
+      --success: #53DBC9;
+      --error: #FF7169;
+      --white: #FFFFFF;
+      --gray: #A1A1A1;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      font-weight: 300;
+      font-size: 16px;
+      line-height: 140%;
+      letter-spacing: 0.02em;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1302px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    @media (min-width: 1302px) {
+      .container {
+        padding: 0 30px;
+      }
+    }
+
+    /* Header */
+    header {
+      padding: 24px 0;
+      border-bottom: 2px solid var(--text);
+    }
+
+    h1 {
+      font-family: 'Space Mono', monospace;
+      font-style: normal;
+      font-weight: 400;
+      font-size: 30px;
+      line-height: 140%;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    @media (min-width: 728px) {
+      h1 {
+        font-size: 56px;
+        line-height: 120%;
+      }
+    }
+
+    @media (min-width: 960px) {
+      h1 {
+        font-size: 80px;
+      }
+    }
+
+    /* Main Game Area */
+    main {
+      padding: 48px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+
+    /* Prompt Section */
+    .prompt-section {
+      text-align: center;
+    }
+
+    .prompt-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+    }
+
+    .prompt-text {
+      font-family: 'Space Mono', monospace;
+      font-size: 28px;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    @media (min-width: 728px) {
+      .prompt-text {
+        font-size: 36px;
+      }
+    }
+
+    /* Timer */
+    .timer {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background-color: var(--accent);
+      border: 2px solid var(--text);
+      padding: 8px 16px;
+      font-family: 'Space Mono', monospace;
+      font-size: 24px;
+      font-weight: 400;
+      box-shadow: -4px 4px 0px 0px var(--text);
+      letter-spacing: 0.02em;
+    }
+
+    .timer.warning {
+      background-color: var(--error);
+      color: var(--white);
+    }
+
+    /* Canvas Card */
+    .canvas-card {
+      background-color: var(--white);
+      border: 2px solid var(--text);
+      box-shadow: -8px 8px 0px 0px var(--text);
+      padding: 16px;
+    }
+
+    @media (min-width: 728px) {
+      .canvas-card {
+        padding: 24px;
+      }
+    }
+
+    #canvas {
+      display: block;
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      padding: 16.5px 22px;
+      border: 2px solid var(--text);
+      border-radius: 2px;
+      cursor: pointer;
+      transition: transform 120ms ease-in-out, background-color 120ms ease-in-out;
+    }
+
+    .btn:hover {
+      transform: translate(7px, -7px);
+    }
+
+    .btn:active {
+      transform: translate(2px, -2px);
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: var(--text);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--white);
+    }
+
+    .btn-success {
+      background-color: var(--success);
+      color: var(--text);
+    }
+
+    /* Live Predictions Section */
+    .predictions-section {
+      padding: 24px;
+      background-color: var(--white);
+      border: 2px solid var(--text);
+      box-shadow: -6px 6px 0px 0px var(--text);
+      min-width: 320px;
+      max-width: 400px;
+    }
+
+    .predictions-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 16px;
+      letter-spacing: 0.02em;
+      text-align: center;
+    }
+
+    .predictions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .prediction-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px;
+      background-color: var(--bg);
+      border: 1px solid var(--text);
+      transition: all 150ms ease;
+    }
+
+    .prediction-item:first-child {
+      background-color: var(--accent);
+      border-width: 2px;
+    }
+
+    .prediction-item.correct:first-child {
+      background-color: var(--success);
+    }
+
+    .prediction-name {
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      flex: 1;
+    }
+
+    .prediction-bar {
+      width: 100px;
+      height: 8px;
+      background-color: var(--white);
+      border: 1px solid var(--text);
+      overflow: hidden;
+    }
+
+    .prediction-bar-fill {
+      height: 100%;
+      background-color: var(--primary);
+      transition: width 200ms ease;
+    }
+
+    .prediction-item:first-child .prediction-bar-fill {
+      background-color: var(--text);
+    }
+
+    .prediction-confidence {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      color: var(--gray);
+      min-width: 40px;
+      text-align: right;
+    }
+
+    /* Final Score */
+    .final-score {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 2px solid var(--text);
+      text-align: center;
+      display: none;
+    }
+
+    .final-score.visible {
+      display: block;
+    }
+
+    .final-score-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--gray);
+      letter-spacing: 0.02em;
+    }
+
+    .final-score-value {
+      font-family: 'Space Mono', monospace;
+      font-size: 48px;
+      color: var(--success);
+      letter-spacing: 0.02em;
+    }
+
+    .final-score-value.fail {
+      color: var(--error);
+    }
+
+    /* Footer */
+    footer {
+      padding: 24px 0;
+      border-top: 2px solid var(--text);
+      text-align: center;
+    }
+
+    footer p {
+      font-size: 14px;
+      color: var(--gray);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(1rem);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    /* Game States */
+    .game-over .canvas-card {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Guessme</h1>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="prompt-section">
+      <p class="prompt-label">Draw this:</p>
+      <p class="prompt-text" id="prompt">Cat</p>
+    </div>
+
+    <div class="timer" id="timer">
+      <span id="timer-value">30</span>s
+    </div>
+
+    <div class="canvas-card">
+      <canvas id="canvas" width="400" height="400"></canvas>
+    </div>
+
+    <div class="predictions-section" id="predictions">
+      <p class="predictions-label">AI Predictions (Live)</p>
+      <div class="predictions-list" id="predictions-list">
+        <div class="prediction-item">
+          <span class="prediction-name">-</span>
+          <div class="prediction-bar"><div class="prediction-bar-fill" style="width: 0%"></div></div>
+          <span class="prediction-confidence">0%</span>
+        </div>
+      </div>
+      <div class="final-score" id="final-score">
+        <p class="final-score-label">Your Score</p>
+        <p class="final-score-value" id="score-value">0%</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-outline" id="clear-btn">Clear</button>
+      <button class="btn btn-primary" id="submit-btn">Submit</button>
+      <button class="btn btn-success" id="new-game-btn" style="display: none;">New Game</button>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>GUESSME - AI Drawing Game</p>
+    </div>
+  </footer>
+
+  <script>
+    // Canvas setup
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let strokes = [];
+    let currentStroke = [];
+    let gameOver = false;
+
+    // Timer
+    let timeLeft = 30;
+    let timerInterval = null;
+    let predictionInterval = null;
+    const timerEl = document.getElementById('timer');
+    const timerValueEl = document.getElementById('timer-value');
+
+    // Elements
+    const clearBtn = document.getElementById('clear-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    const newGameBtn = document.getElementById('new-game-btn');
+    const predictionsListEl = document.getElementById('predictions-list');
+    const finalScoreEl = document.getElementById('final-score');
+    const scoreValueEl = document.getElementById('score-value');
+
+    // Prompts and predictions
+    const prompts = ['Cat', 'House', 'Tree', 'Car', 'Sun', 'Flower', 'Fish', 'Bird', 'Apple', 'Star'];
+    let currentPrompt = 'Cat';
+    let predictions = [];
+
+    // Initialize canvas
+    function initCanvas() {
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = '#383838';
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+    }
+
+    // Get position from event
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX || e.touches[0].clientX) - rect.left;
+      const y = (e.clientY || e.touches[0].clientY) - rect.top;
+      return { x, y };
+    }
+
+    // Drawing handlers
+    function startDrawing(e) {
+      if (gameOver) return;
+      e.preventDefault();
+      isDrawing = true;
+      currentStroke = [];
+      const pos = getPos(e);
+      currentStroke.push(pos);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+    }
+
+    function draw(e) {
+      if (!isDrawing || gameOver) return;
+      e.preventDefault();
+      const pos = getPos(e);
+      currentStroke.push(pos);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+    }
+
+    function stopDrawing(e) {
+      if (!isDrawing || gameOver) return;
+      e.preventDefault();
+      isDrawing = false;
+      if (currentStroke.length > 0) {
+        strokes.push([...currentStroke]);
+      }
+      currentStroke = [];
+    }
+
+    // Mouse events
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseleave', stopDrawing);
+
+    // Touch events
+    canvas.addEventListener('touchstart', startDrawing);
+    canvas.addEventListener('touchmove', draw);
+    canvas.addEventListener('touchend', stopDrawing);
+
+    // Clear canvas
+    function clearCanvas() {
+      initCanvas();
+      strokes = [];
+      currentStroke = [];
+      resetPredictions();
+    }
+
+    clearBtn.addEventListener('click', clearCanvas);
+
+    // Mock ML prediction (replace with WebSocket later)
+    function generateMockPredictions() {
+      if (strokes.length === 0) {
+        return [];
+      }
+
+      // Simulate ML predictions based on stroke count
+      const strokeFactor = Math.min(strokes.length / 10, 1);
+      const allLabels = ['Cat', 'Dog', 'House', 'Tree', 'Car', 'Sun', 'Flower', 'Fish', 'Bird', 'Apple', 'Star', 'Boat', 'Cup'];
+
+      // Generate random confidences, boost target if drawing has strokes
+      const results = allLabels.map(label => {
+        let confidence = Math.random() * 30 * strokeFactor;
+        if (label === currentPrompt) {
+          // Target has higher chance of being recognized as strokes increase
+          confidence = Math.random() * 40 * strokeFactor + (strokeFactor * 40);
+        }
+        return { label, confidence: Math.round(confidence) };
+      });
+
+      // Sort by confidence desc, take top 5
+      return results.sort((a, b) => b.confidence - a.confidence).slice(0, 5);
+    }
+
+    // Update predictions UI
+    function updatePredictionsUI() {
+      predictions = generateMockPredictions();
+
+      if (predictions.length === 0) {
+        predictionsListEl.innerHTML = `
+          <div class="prediction-item">
+            <span class="prediction-name">Start drawing...</span>
+            <div class="prediction-bar"><div class="prediction-bar-fill" style="width: 0%"></div></div>
+            <span class="prediction-confidence">-</span>
+          </div>
+        `;
+        return;
+      }
+
+      const html = predictions.map((p, i) => {
+        const isCorrect = p.label === currentPrompt;
+        const correctClass = isCorrect ? 'correct' : '';
+        return `
+          <div class="prediction-item ${correctClass}">
+            <span class="prediction-name">${p.label}</span>
+            <div class="prediction-bar"><div class="prediction-bar-fill" style="width: ${p.confidence}%"></div></div>
+            <span class="prediction-confidence">${p.confidence}%</span>
+          </div>
+        `;
+      }).join('');
+
+      predictionsListEl.innerHTML = html;
+    }
+
+    function resetPredictions() {
+      predictions = [];
+      predictionsListEl.innerHTML = `
+        <div class="prediction-item">
+          <span class="prediction-name">Start drawing...</span>
+          <div class="prediction-bar"><div class="prediction-bar-fill" style="width: 0%"></div></div>
+          <span class="prediction-confidence">-</span>
+        </div>
+      `;
+    }
+
+    // Start streaming predictions
+    function startPredictionStream() {
+      predictionInterval = setInterval(() => {
+        if (!gameOver && strokes.length > 0) {
+          updatePredictionsUI();
+        }
+      }, 500); // Update every 500ms
+    }
+
+    function stopPredictionStream() {
+      clearInterval(predictionInterval);
+    }
+
+    // Timer
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        timerValueEl.textContent = timeLeft;
+
+        if (timeLeft <= 10) {
+          timerEl.classList.add('warning');
+        }
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          submitDrawing();
+        }
+      }, 1000);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+    }
+
+    // Submit drawing - take highest score
+    function submitDrawing() {
+      if (gameOver) return;
+      gameOver = true;
+      stopTimer();
+      stopPredictionStream();
+
+      // Final prediction update
+      updatePredictionsUI();
+
+      // Disable canvas
+      document.body.classList.add('game-over');
+      submitBtn.style.display = 'none';
+      clearBtn.style.display = 'none';
+      newGameBtn.style.display = 'inline-block';
+
+      // Calculate score: confidence of target prompt in predictions
+      const targetPrediction = predictions.find(p => p.label === currentPrompt);
+      const score = targetPrediction ? targetPrediction.confidence : 0;
+      const isWin = predictions.length > 0 && predictions[0].label === currentPrompt;
+
+      // Show final score
+      scoreValueEl.textContent = `${score}%`;
+      scoreValueEl.className = 'final-score-value' + (isWin ? '' : ' fail');
+      finalScoreEl.classList.add('visible');
+
+      // Log strokes (for future WebSocket integration)
+      console.log('Final strokes:', strokes.length);
+      console.log('Final predictions:', predictions);
+      console.log('Score:', score, 'Win:', isWin);
+    }
+
+    submitBtn.addEventListener('click', submitDrawing);
+
+    // New game
+    function newGame() {
+      gameOver = false;
+      document.body.classList.remove('game-over');
+      submitBtn.style.display = 'inline-block';
+      clearBtn.style.display = 'inline-block';
+      newGameBtn.style.display = 'none';
+      finalScoreEl.classList.remove('visible');
+
+      // Reset timer
+      timeLeft = 30;
+      timerValueEl.textContent = timeLeft;
+      timerEl.classList.remove('warning');
+
+      // New prompt
+      currentPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+      document.getElementById('prompt').textContent = currentPrompt;
+
+      // Clear canvas and predictions
+      clearCanvas();
+
+      // Start timer and prediction stream
+      startTimer();
+      startPredictionStream();
+    }
+
+    newGameBtn.addEventListener('click', newGame);
+
+    // Initialize
+    initCanvas();
+    startTimer();
+    startPredictionStream();
+  </script>
+</body>
+</html>
