@@ -382,6 +382,139 @@ transition: width 200ms ease;
 
 ---
 
+## Mobile / Responsive
+
+### Breakpoints
+
+| Name | Width | Usage |
+|------|-------|-------|
+| Mobile | < 728px | Base styles (mobile-first) |
+| Tablet | ≥ 728px | Larger padding, wider elements |
+| Desktop | ≥ 960px | Full typography scale |
+| Wide | ≥ 1302px | Max container width |
+
+### Touch Targets
+
+**Minimum size: 48px** (iOS/Android recommendation)
+
+```css
+.btn {
+  min-height: 48px;
+  padding: 14px 20px;  /* mobile */
+}
+
+@media (min-width: 728px) {
+  .btn {
+    padding: 16.5px 22px;  /* desktop */
+  }
+}
+```
+
+### Hover Effects (Touch vs Mouse)
+
+Use `@media (hover: hover)` to only apply hover effects on devices with mouse/trackpad:
+
+```css
+/* Base active state for all devices */
+.btn:active {
+  transform: translate(2px, -2px);
+}
+
+/* Hover only for non-touch devices */
+@media (hover: hover) {
+  .btn:hover {
+    transform: translate(7px, -7px);
+  }
+}
+```
+
+### Responsive Canvas
+
+Canvas maintains internal resolution but scales visually:
+
+```css
+#canvas {
+  width: 100%;
+  height: auto;
+  max-width: 400px;
+  touch-action: none;  /* prevents scroll while drawing */
+}
+```
+
+**JavaScript coordinate scaling:**
+```js
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const x = (clientX - rect.left) * scaleX;
+  const y = (clientY - rect.top) * scaleY;
+  return { x, y };
+}
+```
+
+### Safe Area Insets (Notched Phones)
+
+```css
+body {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+```
+
+### Mobile Meta Tags
+
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#F4EFEA">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+```
+
+### Touch Event Handling
+
+Use `{ passive: false }` to prevent page scroll while drawing:
+
+```js
+canvas.addEventListener('touchstart', handler, { passive: false });
+canvas.addEventListener('touchmove', handler, { passive: false });
+```
+
+### Responsive Spacing
+
+```css
+/* Mobile-first spacing */
+main {
+  padding: 24px 0;
+  gap: 20px;
+}
+
+/* Desktop spacing */
+@media (min-width: 728px) {
+  main {
+    padding: 48px 0;
+    gap: 32px;
+  }
+}
+```
+
+### Card Shadows (Responsive)
+
+```css
+/* Smaller shadow on mobile */
+.card {
+  box-shadow: -6px 6px 0px 0px var(--text);
+}
+
+/* Full shadow on desktop */
+@media (min-width: 728px) {
+  .card {
+    box-shadow: -8px 8px 0px 0px var(--text);
+  }
+}
+```
+
+---
+
 ## Quick Reference
 
 ### Do's ✓
@@ -401,12 +534,12 @@ transition: width 200ms ease;
 
 ---
 
-## Example Component
+## Example Components
 
-**Complete prediction item:**
+### Prediction Item (Live Stream)
 
 ```html
-<div class="prediction-item correct">
+<div class="prediction-item">
   <span class="prediction-name">CAT</span>
   <div class="prediction-bar">
     <div class="prediction-bar-fill" style="width: 87%"></div>
@@ -425,13 +558,10 @@ transition: width 200ms ease;
   border: 1px solid #383838;
 }
 
+/* First item (top prediction) highlighted */
 .prediction-item:first-child {
   background-color: #FFDE00;
   border-width: 2px;
-}
-
-.prediction-item.correct:first-child {
-  background-color: #53DBC9;
 }
 
 .prediction-name {
@@ -443,11 +573,15 @@ transition: width 200ms ease;
 }
 
 .prediction-bar {
-  width: 100px;
+  width: 60px;  /* mobile */
   height: 8px;
   background-color: #FFFFFF;
   border: 1px solid #383838;
   overflow: hidden;
+}
+
+@media (min-width: 728px) {
+  .prediction-bar { width: 100px; }
 }
 
 .prediction-bar-fill {
@@ -462,5 +596,113 @@ transition: width 200ms ease;
   color: #A1A1A1;
   min-width: 40px;
   text-align: right;
+}
+```
+
+---
+
+### Final Result Card
+
+Two-row layout with label/value pairs:
+
+```html
+<div class="final-result">
+  <div class="final-result-row">
+    <span class="final-result-label">Result</span>
+    <span class="final-result-value success">CAT</span>
+  </div>
+  <div class="final-result-row">
+    <span class="final-result-label">Confidence</span>
+    <span class="final-result-value success">87%</span>
+  </div>
+</div>
+```
+
+```css
+.final-result {
+  padding: 20px;
+  background-color: var(--white);
+  border: 2px solid var(--text);
+  box-shadow: -6px 6px 0px 0px var(--text);
+  width: calc(100% - 12px);
+  max-width: 400px;
+}
+
+.final-result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.final-result-row:first-child {
+  border-bottom: 1px solid var(--text);
+}
+
+.final-result-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: var(--gray);
+  letter-spacing: 0.02em;
+}
+
+.final-result-value {
+  font-family: 'Space Mono', monospace;
+  font-size: 24px;
+  text-transform: uppercase;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+
+.final-result-value.success {
+  color: var(--success);
+}
+
+.final-result-value.fail {
+  color: var(--error);
+}
+
+@media (min-width: 728px) {
+  .final-result { padding: 24px; }
+  .final-result-value { font-size: 28px; }
+}
+```
+
+---
+
+### Prompt Examples
+
+Display suggested drawing options:
+
+```html
+<div class="prompt-section">
+  <p class="prompt-label">Draw something like:</p>
+  <p class="prompt-examples">Cat, House, Tree, Car, Sun, Flower...</p>
+</div>
+```
+
+```css
+.prompt-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+}
+
+.prompt-examples {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  max-width: 400px;
+  line-height: 160%;
+}
+
+@media (min-width: 728px) {
+  .prompt-examples { font-size: 16px; }
 }
 ```

@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#F4EFEA">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>GUESSME - AI Drawing Game</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
@@ -33,6 +36,7 @@
       background-color: var(--bg);
       color: var(--text);
       min-height: 100vh;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
 
     .container {
@@ -78,11 +82,18 @@
 
     /* Main Game Area */
     main {
-      padding: 48px 0;
+      padding: 24px 0;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 32px;
+      gap: 20px;
+    }
+
+    @media (min-width: 728px) {
+      main {
+        padding: 48px 0;
+        gap: 32px;
+      }
     }
 
     /* Prompt Section */
@@ -99,17 +110,20 @@
       letter-spacing: 0.02em;
     }
 
-    .prompt-text {
+    .prompt-examples {
       font-family: 'Space Mono', monospace;
-      font-size: 28px;
+      font-size: 14px;
       font-weight: 400;
       text-transform: uppercase;
       letter-spacing: 0.02em;
+      color: var(--text);
+      max-width: 400px;
+      line-height: 160%;
     }
 
     @media (min-width: 728px) {
-      .prompt-text {
-        font-size: 36px;
+      .prompt-examples {
+        font-size: 16px;
       }
     }
 
@@ -137,13 +151,19 @@
     .canvas-card {
       background-color: var(--white);
       border: 2px solid var(--text);
-      box-shadow: -8px 8px 0px 0px var(--text);
-      padding: 16px;
+      box-shadow: -6px 6px 0px 0px var(--text);
+      padding: 12px;
+      width: calc(100% - 12px);
+      max-width: 424px;
+      box-sizing: border-box;
     }
 
     @media (min-width: 728px) {
       .canvas-card {
         padding: 24px;
+        box-shadow: -8px 8px 0px 0px var(--text);
+        width: auto;
+        max-width: none;
       }
     }
 
@@ -151,6 +171,9 @@
       display: block;
       cursor: crosshair;
       touch-action: none;
+      width: 100%;
+      height: auto;
+      max-width: 400px;
     }
 
     /* Controls */
@@ -167,19 +190,33 @@
       font-weight: 400;
       text-transform: uppercase;
       letter-spacing: 0.02em;
-      padding: 16.5px 22px;
+      padding: 14px 20px;
+      min-height: 48px;
       border: 2px solid var(--text);
       border-radius: 2px;
       cursor: pointer;
-      transition: transform 120ms ease-in-out, background-color 120ms ease-in-out;
+      transition: transform 120ms ease-in-out, box-shadow 120ms ease-in-out, background-color 120ms ease-in-out;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: none;
     }
 
-    .btn:hover {
-      transform: translate(7px, -7px);
+    @media (min-width: 728px) {
+      .btn {
+        padding: 16.5px 22px;
+      }
+    }
+
+    /* Only apply hover effects on devices with hover capability */
+    @media (hover: hover) {
+      .btn:hover {
+        transform: translate(7px, -7px);
+        box-shadow: -7px 7px 0px 0px var(--text);
+      }
     }
 
     .btn:active {
       transform: translate(2px, -2px);
+      box-shadow: -2px 2px 0px 0px var(--text);
     }
 
     .btn-primary {
@@ -187,8 +224,10 @@
       color: var(--text);
     }
 
-    .btn-primary:hover {
-      background-color: var(--primary-hover);
+    @media (hover: hover) {
+      .btn-primary:hover {
+        background-color: var(--primary-hover);
+      }
     }
 
     .btn-outline {
@@ -196,8 +235,10 @@
       color: var(--text);
     }
 
-    .btn-outline:hover {
-      background-color: var(--white);
+    @media (hover: hover) {
+      .btn-outline:hover {
+        background-color: var(--white);
+      }
     }
 
     .btn-success {
@@ -207,12 +248,21 @@
 
     /* Live Predictions Section */
     .predictions-section {
-      padding: 24px;
+      padding: 16px;
       background-color: var(--white);
       border: 2px solid var(--text);
       box-shadow: -6px 6px 0px 0px var(--text);
-      min-width: 320px;
+      width: calc(100% - 12px);
       max-width: 400px;
+      box-sizing: border-box;
+    }
+
+    @media (min-width: 728px) {
+      .predictions-section {
+        padding: 24px;
+        width: auto;
+        min-width: 320px;
+      }
     }
 
     .predictions-label {
@@ -259,11 +309,17 @@
     }
 
     .prediction-bar {
-      width: 100px;
+      width: 60px;
       height: 8px;
       background-color: var(--white);
       border: 1px solid var(--text);
       overflow: hidden;
+    }
+
+    @media (min-width: 728px) {
+      .prediction-bar {
+        width: 100px;
+      }
     }
 
     .prediction-bar-fill {
@@ -284,36 +340,66 @@
       text-align: right;
     }
 
-    /* Final Score */
-    .final-score {
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 2px solid var(--text);
-      text-align: center;
+    /* Final Result */
+    .final-result {
       display: none;
+      padding: 20px;
+      background-color: var(--white);
+      border: 2px solid var(--text);
+      box-shadow: -6px 6px 0px 0px var(--text);
+      width: calc(100% - 12px);
+      max-width: 400px;
+      box-sizing: border-box;
     }
 
-    .final-score.visible {
+    .final-result.visible {
       display: block;
     }
 
-    .final-score-label {
+    .final-result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+    }
+
+    .final-result-row:first-child {
+      border-bottom: 1px solid var(--text);
+    }
+
+    .final-result-label {
       font-family: 'Space Mono', monospace;
-      font-size: 12px;
+      font-size: 14px;
       text-transform: uppercase;
       color: var(--gray);
       letter-spacing: 0.02em;
     }
 
-    .final-score-value {
+    .final-result-value {
       font-family: 'Space Mono', monospace;
-      font-size: 48px;
-      color: var(--success);
+      font-size: 24px;
+      font-weight: 400;
+      text-transform: uppercase;
+      color: var(--text);
       letter-spacing: 0.02em;
     }
 
-    .final-score-value.fail {
+    .final-result-value.success {
+      color: var(--success);
+    }
+
+    .final-result-value.fail {
       color: var(--error);
+    }
+
+    @media (min-width: 728px) {
+      .final-result {
+        padding: 24px;
+      }
+
+      .final-result-value {
+        font-size: 28px;
+      }
     }
 
     /* Footer */
@@ -360,8 +446,8 @@
 
   <main class="container">
     <div class="prompt-section">
-      <p class="prompt-label">Draw this:</p>
-      <p class="prompt-text" id="prompt">Cat</p>
+      <p class="prompt-label">Draw something like:</p>
+      <p class="prompt-examples">Cat, House, Tree, Car, Sun, Flower, Fish, Bird, Apple, Star...</p>
     </div>
 
     <div class="timer" id="timer">
@@ -381,9 +467,16 @@
           <span class="prediction-confidence">0%</span>
         </div>
       </div>
-      <div class="final-score" id="final-score">
-        <p class="final-score-label">Your Score</p>
-        <p class="final-score-value" id="score-value">0%</p>
+    </div>
+
+    <div class="final-result" id="final-result">
+      <div class="final-result-row">
+        <span class="final-result-label">Result</span>
+        <span class="final-result-value" id="result-label">-</span>
+      </div>
+      <div class="final-result-row">
+        <span class="final-result-label">Confidence</span>
+        <span class="final-result-value" id="result-confidence">0%</span>
       </div>
     </div>
 
@@ -420,13 +513,14 @@
     const clearBtn = document.getElementById('clear-btn');
     const submitBtn = document.getElementById('submit-btn');
     const newGameBtn = document.getElementById('new-game-btn');
+    const predictionsEl = document.getElementById('predictions');
     const predictionsListEl = document.getElementById('predictions-list');
-    const finalScoreEl = document.getElementById('final-score');
-    const scoreValueEl = document.getElementById('score-value');
+    const finalResultEl = document.getElementById('final-result');
+    const resultLabelEl = document.getElementById('result-label');
+    const resultConfidenceEl = document.getElementById('result-confidence');
 
-    // Prompts and predictions
-    const prompts = ['Cat', 'House', 'Tree', 'Car', 'Sun', 'Flower', 'Fish', 'Bird', 'Apple', 'Star'];
-    let currentPrompt = 'Cat';
+    // Predictions
+    const knownLabels = ['Cat', 'Dog', 'House', 'Tree', 'Car', 'Sun', 'Flower', 'Fish', 'Bird', 'Apple', 'Star', 'Boat', 'Cup'];
     let predictions = [];
 
     // Initialize canvas
@@ -439,11 +533,16 @@
       ctx.lineJoin = 'round';
     }
 
-    // Get position from event
+    // Get position from event (handles scaled canvas)
     function getPos(e) {
       const rect = canvas.getBoundingClientRect();
-      const x = (e.clientX || e.touches[0].clientX) - rect.left;
-      const y = (e.clientY || e.touches[0].clientY) - rect.top;
+      const clientX = e.clientX || e.touches[0].clientX;
+      const clientY = e.clientY || e.touches[0].clientY;
+      // Scale coordinates to canvas internal size
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const x = (clientX - rect.left) * scaleX;
+      const y = (clientY - rect.top) * scaleY;
       return { x, y };
     }
 
@@ -484,9 +583,9 @@
     canvas.addEventListener('mouseup', stopDrawing);
     canvas.addEventListener('mouseleave', stopDrawing);
 
-    // Touch events
-    canvas.addEventListener('touchstart', startDrawing);
-    canvas.addEventListener('touchmove', draw);
+    // Touch events (passive: false to prevent scroll while drawing)
+    canvas.addEventListener('touchstart', startDrawing, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
     canvas.addEventListener('touchend', stopDrawing);
 
     // Clear canvas
@@ -507,15 +606,10 @@
 
       // Simulate ML predictions based on stroke count
       const strokeFactor = Math.min(strokes.length / 10, 1);
-      const allLabels = ['Cat', 'Dog', 'House', 'Tree', 'Car', 'Sun', 'Flower', 'Fish', 'Bird', 'Apple', 'Star', 'Boat', 'Cup'];
 
-      // Generate random confidences, boost target if drawing has strokes
-      const results = allLabels.map(label => {
-        let confidence = Math.random() * 30 * strokeFactor;
-        if (label === currentPrompt) {
-          // Target has higher chance of being recognized as strokes increase
-          confidence = Math.random() * 40 * strokeFactor + (strokeFactor * 40);
-        }
+      // Generate random confidences
+      const results = knownLabels.map(label => {
+        const confidence = Math.random() * 60 * strokeFactor + (Math.random() * 20);
         return { label, confidence: Math.round(confidence) };
       });
 
@@ -539,10 +633,8 @@
       }
 
       const html = predictions.map((p, i) => {
-        const isCorrect = p.label === currentPrompt;
-        const correctClass = isCorrect ? 'correct' : '';
         return `
-          <div class="prediction-item ${correctClass}">
+          <div class="prediction-item">
             <span class="prediction-name">${p.label}</span>
             <div class="prediction-bar"><div class="prediction-bar-fill" style="width: ${p.confidence}%"></div></div>
             <span class="prediction-confidence">${p.confidence}%</span>
@@ -598,7 +690,7 @@
       clearInterval(timerInterval);
     }
 
-    // Submit drawing - take highest score
+    // Submit drawing - show highest confidence result
     function submitDrawing() {
       if (gameOver) return;
       gameOver = true;
@@ -614,20 +706,22 @@
       clearBtn.style.display = 'none';
       newGameBtn.style.display = 'inline-block';
 
-      // Calculate score: confidence of target prompt in predictions
-      const targetPrediction = predictions.find(p => p.label === currentPrompt);
-      const score = targetPrediction ? targetPrediction.confidence : 0;
-      const isWin = predictions.length > 0 && predictions[0].label === currentPrompt;
+      // Hide live predictions, show final result
+      predictionsEl.style.display = 'none';
 
-      // Show final score
-      scoreValueEl.textContent = `${score}%`;
-      scoreValueEl.className = 'final-score-value' + (isWin ? '' : ' fail');
-      finalScoreEl.classList.add('visible');
+      // Get highest confidence prediction
+      const topPrediction = predictions.length > 0 ? predictions[0] : { label: '-', confidence: 0 };
+
+      // Show final result (always success color since no target)
+      resultLabelEl.textContent = topPrediction.label;
+      resultLabelEl.className = 'final-result-value success';
+      resultConfidenceEl.textContent = `${topPrediction.confidence}%`;
+      resultConfidenceEl.className = 'final-result-value success';
+      finalResultEl.classList.add('visible', 'fade-in');
 
       // Log strokes (for future WebSocket integration)
       console.log('Final strokes:', strokes.length);
-      console.log('Final predictions:', predictions);
-      console.log('Score:', score, 'Win:', isWin);
+      console.log('Top prediction:', topPrediction);
     }
 
     submitBtn.addEventListener('click', submitDrawing);
@@ -639,16 +733,15 @@
       submitBtn.style.display = 'inline-block';
       clearBtn.style.display = 'inline-block';
       newGameBtn.style.display = 'none';
-      finalScoreEl.classList.remove('visible');
+
+      // Hide final result, show live predictions
+      finalResultEl.classList.remove('visible', 'fade-in');
+      predictionsEl.style.display = '';
 
       // Reset timer
       timeLeft = 30;
       timerValueEl.textContent = timeLeft;
       timerEl.classList.remove('warning');
-
-      // New prompt
-      currentPrompt = prompts[Math.floor(Math.random() * prompts.length)];
-      document.getElementById('prompt').textContent = currentPrompt;
 
       // Clear canvas and predictions
       clearCanvas();
