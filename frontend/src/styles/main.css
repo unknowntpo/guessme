@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+/* MotherDuck Theme */
+@theme {
+  --color-bg: #F4EFEA;
+  --color-text: #383838;
+  --color-primary: #6FC2FF;
+  --color-primary-hover: #2BA5FF;
+  --color-accent: #FFDE00;
+  --color-success: #53DBC9;
+  --color-error: #FF7169;
+  --color-gray: #A1A1A1;
+
+  --font-mono: "Space Mono", monospace;
+  --font-sans: "Inter", Arial, sans-serif;
+
+  --shadow-offset-sm: -4px 4px 0px 0px #383838;
+  --shadow-offset-md: -6px 6px 0px 0px #383838;
+  --shadow-offset-lg: -8px 8px 0px 0px #383838;
+  --shadow-offset-hover: -7px 7px 0px 0px #383838;
+}
+
+/* Base styles */
+body {
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 140%;
+  letter-spacing: 0.02em;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* Button base */
+.btn {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  padding: 14px 20px;
+  min-height: 48px;
+  border: 2px solid var(--color-text);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: transform 120ms ease-in-out, box-shadow 120ms ease-in-out, background-color 120ms ease-in-out;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: none;
+}
+
+@media (min-width: 728px) {
+  .btn {
+    padding: 16.5px 22px;
+  }
+}
+
+@media (hover: hover) {
+  .btn:hover {
+    transform: translate(7px, -7px);
+    box-shadow: var(--shadow-offset-hover);
+  }
+}
+
+.btn:active {
+  transform: translate(2px, -2px);
+  box-shadow: -2px 2px 0px 0px var(--color-text);
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-text);
+}
+
+@media (hover: hover) {
+  .btn-primary:hover {
+    background-color: var(--color-primary-hover);
+  }
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--color-text);
+}
+
+@media (hover: hover) {
+  .btn-outline:hover {
+    background-color: white;
+  }
+}
+
+.btn-success {
+  background-color: var(--color-success);
+  color: var(--color-text);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
