@@ -1,31 +1,39 @@
-# Guessme Design Style Guide
+# Guessme Design Style Guide (Tailwind CSS)
 
 Based on MotherDuck design system. Use this guide to maintain visual consistency.
 
+**Framework:** Tailwind CSS 4 with `@theme` variables in `main.css`
+
+---
+
 ## Color Palette
 
+**Theme Definition (`main.css`):**
 ```css
-:root {
-  --bg: #F4EFEA;          /* Warm cream - page background */
-  --text: #383838;        /* Dark charcoal - text, borders */
-  --primary: #6FC2FF;     /* Light blue - primary buttons */
-  --primary-hover: #2BA5FF; /* Medium blue - button hover */
-  --accent: #FFDE00;      /* Yellow - highlights, timer */
-  --success: #53DBC9;     /* Teal - success states */
-  --error: #FF7169;       /* Coral - error, warning */
-  --white: #FFFFFF;       /* White - cards, inputs */
-  --gray: #A1A1A1;        /* Gray - secondary text */
+@theme {
+  --color-bg: #F4EFEA;          /* Warm cream - page background */
+  --color-text: #383838;        /* Dark charcoal - text, borders */
+  --color-primary: #6FC2FF;     /* Light blue - primary buttons */
+  --color-primary-hover: #2BA5FF; /* Medium blue - button hover */
+  --color-accent: #FFDE00;      /* Yellow - highlights, timer */
+  --color-success: #53DBC9;     /* Teal - success states */
+  --color-error: #FF7169;       /* Coral - error, warning */
+  --color-gray: #A1A1A1;        /* Gray - secondary text */
 }
 ```
 
-| Color | Hex | Usage |
-|-------|-----|-------|
-| Background | `#F4EFEA` | Page bg |
-| Text | `#383838` | All text, borders, shadows |
-| Primary | `#6FC2FF` | Primary buttons |
-| Accent | `#FFDE00` | Highlights, top items |
-| Success | `#53DBC9` | Correct, win states |
-| Error | `#FF7169` | Wrong, timer warning |
+**Tailwind Classes:**
+| Color | Hex | Background | Text |
+|-------|-----|------------|------|
+| Background | `#F4EFEA` | `bg-bg` | `text-bg` |
+| Text | `#383838` | `bg-text` | `text-text` |
+| Primary | `#6FC2FF` | `bg-primary` | `text-primary` |
+| Primary Hover | `#2BA5FF` | `hover:bg-primary-hover` | - |
+| Accent | `#FFDE00` | `bg-accent` | `text-accent` |
+| Success | `#53DBC9` | `bg-success` | `text-success` |
+| Error | `#FF7169` | `bg-error` | `text-error` |
+| Gray | `#A1A1A1` | `bg-gray` | `text-gray` |
+| White | `#FFFFFF` | `bg-white` | `text-white` |
 
 ---
 
@@ -33,13 +41,19 @@ Based on MotherDuck design system. Use this guide to maintain visual consistency
 
 ### Fonts
 
+**Theme Definition (`main.css`):**
 ```css
-/* Headlines, labels, buttons */
-font-family: 'Space Mono', monospace;
-
-/* Body text */
-font-family: 'Inter', Arial, sans-serif;
+@theme {
+  --font-mono: "Space Mono", monospace;
+  --font-sans: "Inter", Arial, sans-serif;
+}
 ```
+
+**Tailwind Classes:**
+| Font | Usage | Tailwind |
+|------|-------|----------|
+| Space Mono | Headlines, labels, buttons | `font-mono` |
+| Inter | Body text | `font-sans` |
 
 **Google Fonts import:**
 ```html
@@ -48,48 +62,35 @@ font-family: 'Inter', Arial, sans-serif;
 
 ### Heading Scale (h1)
 
-```css
-h1 {
-  font-family: 'Space Mono', monospace;
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  line-height: 140%;
-  font-size: 30px;  /* mobile */
-}
-
-@media (min-width: 728px) {
-  h1 { font-size: 56px; line-height: 120%; }
-}
-
-@media (min-width: 960px) {
-  h1 { font-size: 80px; }
-}
+```html
+<h1 class="font-mono font-normal uppercase tracking-wide leading-[140%] text-[30px] md:text-[56px] md:leading-[120%] lg:text-[80px]">
+  Heading
+</h1>
 ```
+
+| Breakpoint | Font Size | Line Height |
+|------------|-----------|-------------|
+| Mobile (default) | `text-[30px]` | `leading-[140%]` |
+| Tablet (≥728px) | `md:text-[56px]` | `md:leading-[120%]` |
+| Desktop (≥960px) | `lg:text-[80px]` | - |
 
 ### Body Text
 
-```css
-body {
-  font-family: 'Inter', Arial, sans-serif;
-  font-weight: 300;
-  font-size: 16px;
-  line-height: 140%;
-  letter-spacing: 0.02em;
-}
+```html
+<body class="font-sans font-light text-base leading-[140%] tracking-wide bg-bg text-text">
 ```
+
+**Classes:** `font-sans font-light text-base leading-[140%] tracking-wide`
 
 ### Labels
 
-```css
-.label {
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  color: var(--gray);
-}
+```html
+<span class="font-mono text-xs uppercase tracking-wide text-gray">
+  Label text
+</span>
 ```
+
+**Classes:** `font-mono text-xs uppercase tracking-wide text-gray`
 
 ---
 
@@ -97,174 +98,160 @@ body {
 
 ### Buttons
 
+Buttons use utility classes defined in `main.css`. The `.btn` base class handles:
+- Font, padding, border, transition
+- Hover transform with shadow
+- Active state
+- Touch-friendly sizing (min-height 48px)
+
 **Primary Button (Blue)**
-```css
-.btn-primary {
-  font-family: 'Space Mono', monospace;
-  font-size: 14px;
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  padding: 16.5px 22px;
-  border: 2px solid var(--text);
-  border-radius: 2px;
-  background-color: var(--primary);
-  color: var(--text);
-  cursor: pointer;
-  transition: transform 120ms ease-in-out, background-color 120ms ease-in-out;
-}
+```html
+<button class="btn btn-primary">Submit</button>
+```
 
-.btn-primary:hover {
-  transform: translate(7px, -7px);
-  background-color: var(--primary-hover);
-}
-
-.btn-primary:active {
-  transform: translate(2px, -2px);
-}
+**Tailwind equivalent (if not using utility):**
+```html
+<button class="font-mono text-sm font-normal uppercase tracking-wide
+  py-[14px] px-5 md:py-[16.5px] md:px-[22px] min-h-12
+  border-2 border-text rounded-sm
+  bg-primary text-text cursor-pointer
+  transition-all duration-[120ms] ease-in-out
+  hover:translate-x-[7px] hover:-translate-y-[7px] hover:shadow-offset-hover hover:bg-primary-hover
+  active:translate-x-[2px] active:-translate-y-[2px]">
+  Submit
+</button>
 ```
 
 **Outline Button**
-```css
-.btn-outline {
-  /* Same base as primary */
-  background-color: transparent;
-  color: var(--text);
-}
-
-.btn-outline:hover {
-  background-color: var(--white);
-}
+```html
+<button class="btn btn-outline">Clear</button>
 ```
+
+**Classes:** Same as primary, but `bg-transparent hover:bg-white`
 
 **Success Button**
-```css
-.btn-success {
-  background-color: var(--success);
-  color: var(--text);
-}
+```html
+<button class="btn btn-success">New Game</button>
 ```
 
-**Example:**
+**Classes:** Same as primary, but `bg-success`
+
+**Disabled State**
 ```html
-<button class="btn btn-primary">Submit</button>
-<button class="btn btn-outline">Clear</button>
-<button class="btn btn-success">New Game</button>
+<button class="btn btn-primary" disabled>
+  <!-- Automatically styled via CSS -->
+</button>
+```
+
+```css
+/* In main.css */
+.btn:disabled {
+  color: var(--color-gray);
+  background-color: var(--color-bg);
+  border-color: var(--color-gray);
+  cursor: not-allowed;
+  transform: none;
+}
 ```
 
 ---
 
 ### Cards
 
+**Theme Definition (`main.css`):**
 ```css
-.card {
-  background-color: var(--white);
-  border: 2px solid var(--text);
-  box-shadow: -8px 8px 0px 0px var(--text);
-  padding: 24px;
+@theme {
+  --shadow-offset-sm: -4px 4px 0px 0px #383838;
+  --shadow-offset-md: -6px 6px 0px 0px #383838;
+  --shadow-offset-lg: -8px 8px 0px 0px #383838;
 }
 ```
 
-**Shadow sizes:**
-| Size | Value | Usage |
-|------|-------|-------|
-| Small | `-4px 4px 0px 0px` | Badges, small elements |
-| Medium | `-6px 6px 0px 0px` | Cards, panels |
-| Large | `-8px 8px 0px 0px` | Main content cards |
-
-**Example:**
+**Tailwind Classes:**
 ```html
-<div class="card">
+<div class="bg-white border-2 border-text shadow-offset-lg p-6">
   <h2>Card Title</h2>
   <p>Card content goes here.</p>
 </div>
+```
+
+**Shadow sizes:**
+| Size | Tailwind Class | Usage |
+|------|----------------|-------|
+| Small | `shadow-offset-sm` | Badges, small elements |
+| Medium | `shadow-offset-md` | Cards, panels |
+| Large | `shadow-offset-lg` | Main content cards |
+| Hover | `shadow-offset-hover` | Button hover state |
+
+**Responsive Shadow:**
+```html
+<!-- Smaller shadow on mobile, larger on desktop -->
+<div class="shadow-offset-md md:shadow-offset-lg">
 ```
 
 ---
 
 ### Badges / Tags
 
-```css
-.badge {
-  display: inline-flex;
-  align-items: center;
-  background-color: var(--accent);
-  border: 2px solid var(--text);
-  padding: 8px 16px;
-  font-family: 'Space Mono', monospace;
-  font-size: 14px;
-  box-shadow: -4px 4px 0px 0px var(--text);
-}
-
-.badge--warning {
-  background-color: var(--error);
-  color: var(--white);
-}
+```html
+<span class="inline-flex items-center bg-accent border-2 border-text
+  py-2 px-4 font-mono text-sm shadow-offset-sm">
+  30s
+</span>
 ```
 
-**Example:**
+**Warning variant:**
 ```html
-<span class="badge">30s</span>
-<span class="badge badge--warning">10s</span>
+<span class="inline-flex items-center bg-error border-2 border-text
+  py-2 px-4 font-mono text-sm shadow-offset-sm text-white">
+  10s
+</span>
 ```
 
 ---
 
 ### List Items
 
-```css
-.list-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
-  background-color: var(--bg);
-  border: 1px solid var(--text);
-  transition: all 150ms ease;
-}
+```html
+<div class="flex items-center gap-3 py-2 px-3 bg-bg border border-text transition-all duration-150">
+  <!-- Content -->
+</div>
+```
 
-/* First item (highlighted) */
-.list-item:first-child {
-  background-color: var(--accent);
-  border-width: 2px;
-}
+**First item (highlighted):**
+```html
+<div class="flex items-center gap-3 py-2 px-3 bg-accent border-2 border-text transition-all duration-150">
+  <!-- Top prediction -->
+</div>
+```
 
-/* Correct state */
-.list-item.correct:first-child {
-  background-color: var(--success);
-}
+**Correct state (first item):**
+```html
+<div class="flex items-center gap-3 py-2 px-3 bg-success border-2 border-text">
+  <!-- Correct answer -->
+</div>
 ```
 
 ---
 
 ### Progress Bars
 
-```css
-.progress-bar {
-  width: 100px;
-  height: 8px;
-  background-color: var(--white);
-  border: 1px solid var(--text);
-  overflow: hidden;
-}
-
-.progress-bar__fill {
-  height: 100%;
-  background-color: var(--primary);
-  transition: width 200ms ease;
-}
-
-/* Highlighted variant */
-.list-item:first-child .progress-bar__fill {
-  background-color: var(--text);
-}
+```html
+<div class="w-[100px] h-2 bg-white border border-text overflow-hidden">
+  <div class="h-full bg-primary transition-[width] duration-200 ease-out"
+    style="width: 75%">
+  </div>
+</div>
 ```
 
-**Example:**
+**Responsive width:**
 ```html
-<div class="progress-bar">
-  <div class="progress-bar__fill" style="width: 75%"></div>
-</div>
+<div class="w-[60px] md:w-[100px] h-2 bg-white border border-text overflow-hidden">
+```
+
+**Highlighted variant (first item):**
+```html
+<div class="h-full bg-text transition-[width] duration-200 ease-out">
 ```
 
 ---
@@ -273,46 +260,38 @@ body {
 
 ### Container
 
-```css
-.container {
-  max-width: 1302px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-
-@media (min-width: 1302px) {
-  .container {
-    padding: 0 30px;
-  }
-}
+```html
+<div class="max-w-[1302px] mx-auto px-6 xl:px-[30px]">
+  <!-- Content -->
+</div>
 ```
 
 ### Breakpoints
 
-| Name | Width | Usage |
-|------|-------|-------|
-| Mobile | < 728px | Base styles |
-| Tablet | ≥ 728px | Medium adjustments |
-| Desktop | ≥ 960px | Large typography |
-| Wide | ≥ 1302px | Max container width |
+Tailwind defaults + custom:
+| Name | Width | Tailwind Prefix |
+|------|-------|-----------------|
+| Mobile | < 728px | (default) |
+| Tablet | ≥ 728px | `md:` |
+| Desktop | ≥ 960px | `lg:` |
+| Wide | ≥ 1302px | `xl:` |
+
+**Note:** Configure custom breakpoints in `tailwind.config.js` if needed:
+```js
+theme: {
+  screens: {
+    'md': '728px',
+    'lg': '960px',
+    'xl': '1302px',
+  }
+}
+```
 
 ---
 
 ## Animations
 
-### Hover Transform (Buttons)
-
-```css
-transition: transform 120ms ease-in-out;
-
-/* Hover */
-transform: translate(7px, -7px);
-
-/* Active/Click */
-transform: translate(2px, -2px);
-```
-
-### Fade In
+### Fade In (defined in `main.css`)
 
 ```css
 @keyframes fadeIn {
@@ -331,14 +310,27 @@ transform: translate(2px, -2px);
 }
 ```
 
+**Usage:**
+```html
+<div class="fade-in">Animated content</div>
+```
+
 ### Smooth Transitions
 
-```css
-/* UI state changes */
-transition: all 150ms ease;
+```html
+<!-- UI state changes -->
+<div class="transition-all duration-150 ease-out">
 
-/* Progress bars */
-transition: width 200ms ease;
+<!-- Progress bars -->
+<div class="transition-[width] duration-200 ease-out">
+```
+
+### Hover Transform (Buttons)
+
+```html
+<button class="transition-transform duration-[120ms] ease-in-out
+  hover:translate-x-[7px] hover:-translate-y-[7px]
+  active:translate-x-[2px] active:-translate-y-[2px]">
 ```
 
 ---
@@ -347,99 +339,81 @@ transition: width 200ms ease;
 
 ### Disabled
 
+Defined in `.btn:disabled` in `main.css`:
 ```css
 .btn:disabled {
-  color: var(--gray);
-  background-color: var(--bg);
-  border-color: var(--gray);
+  color: var(--color-gray);
+  background-color: var(--color-bg);
+  border-color: var(--color-gray);
   cursor: not-allowed;
   transform: none;
 }
 ```
 
+**Tailwind equivalent:**
+```html
+<button disabled class="disabled:text-gray disabled:bg-bg disabled:border-gray
+  disabled:cursor-not-allowed disabled:transform-none">
+```
+
 ### Game Over
 
-```css
-.game-over .canvas-card {
-  opacity: 0.7;
-  pointer-events: none;
-}
+```html
+<div class="opacity-70 pointer-events-none">
+  <!-- Canvas card when game is over -->
+</div>
 ```
 
 ### Score Display
 
-```css
-.score {
-  font-family: 'Space Mono', monospace;
-  font-size: 48px;
-  color: var(--success);  /* Win */
-}
+```html
+<!-- Win -->
+<span class="font-mono text-5xl text-success">87%</span>
 
-.score--fail {
-  color: var(--error);    /* Lose */
-}
+<!-- Lose -->
+<span class="font-mono text-5xl text-error">12%</span>
 ```
 
 ---
 
 ## Mobile / Responsive
 
-### Breakpoints
-
-| Name | Width | Usage |
-|------|-------|-------|
-| Mobile | < 728px | Base styles (mobile-first) |
-| Tablet | ≥ 728px | Larger padding, wider elements |
-| Desktop | ≥ 960px | Full typography scale |
-| Wide | ≥ 1302px | Max container width |
-
 ### Touch Targets
 
 **Minimum size: 48px** (iOS/Android recommendation)
 
-```css
-.btn {
-  min-height: 48px;
-  padding: 14px 20px;  /* mobile */
-}
-
-@media (min-width: 728px) {
-  .btn {
-    padding: 16.5px 22px;  /* desktop */
-  }
-}
+```html
+<button class="min-h-12 py-[14px] px-5 md:py-[16.5px] md:px-[22px]">
 ```
 
 ### Hover Effects (Touch vs Mouse)
 
-Use `@media (hover: hover)` to only apply hover effects on devices with mouse/trackpad:
+Use `@media (hover: hover)` in CSS to apply hover only on mouse devices:
 
 ```css
-/* Base active state for all devices */
-.btn:active {
-  transform: translate(2px, -2px);
-}
-
-/* Hover only for non-touch devices */
+/* In main.css */
 @media (hover: hover) {
   .btn:hover {
     transform: translate(7px, -7px);
+    box-shadow: var(--shadow-offset-hover);
   }
 }
+
+.btn:active {
+  transform: translate(2px, -2px);
+}
 ```
+
+**Note:** Tailwind's `hover:` modifier applies to all devices. For touch-friendly hover, define in CSS.
 
 ### Responsive Canvas
 
-Canvas maintains internal resolution but scales visually:
-
-```css
-#canvas {
-  width: 100%;
-  height: auto;
-  max-width: 400px;
-  touch-action: none;  /* prevents scroll while drawing */
-}
+```html
+<canvas class="w-full h-auto max-w-[400px] touch-none">
+</canvas>
 ```
+
+`touch-none` = `touch-action: none` (prevents scroll while drawing)
 
 **JavaScript coordinate scaling:**
 ```js
@@ -456,8 +430,10 @@ function getPos(e) {
 ### Safe Area Insets (Notched Phones)
 
 ```css
+/* In main.css */
 body {
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+           env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 ```
 
@@ -470,67 +446,49 @@ body {
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 ```
 
-### Touch Event Handling
-
-Use `{ passive: false }` to prevent page scroll while drawing:
-
-```js
-canvas.addEventListener('touchstart', handler, { passive: false });
-canvas.addEventListener('touchmove', handler, { passive: false });
-```
-
 ### Responsive Spacing
 
-```css
-/* Mobile-first spacing */
-main {
-  padding: 24px 0;
-  gap: 20px;
-}
-
-/* Desktop spacing */
-@media (min-width: 728px) {
-  main {
-    padding: 48px 0;
-    gap: 32px;
-  }
-}
-```
-
-### Card Shadows (Responsive)
-
-```css
-/* Smaller shadow on mobile */
-.card {
-  box-shadow: -6px 6px 0px 0px var(--text);
-}
-
-/* Full shadow on desktop */
-@media (min-width: 728px) {
-  .card {
-    box-shadow: -8px 8px 0px 0px var(--text);
-  }
-}
+```html
+<!-- Mobile-first spacing -->
+<main class="py-6 gap-5 md:py-12 md:gap-8">
 ```
 
 ---
 
 ## Quick Reference
 
+### Tailwind Class Mapping
+
+| Pure CSS | Tailwind |
+|----------|----------|
+| `background-color: #F4EFEA` | `bg-bg` |
+| `color: #383838` | `text-text` |
+| `font-family: 'Space Mono'` | `font-mono` |
+| `font-family: 'Inter'` | `font-sans` |
+| `box-shadow: -6px 6px...` | `shadow-offset-md` |
+| `padding: 24px` | `p-6` |
+| `border: 2px solid` | `border-2 border-text` |
+| `text-transform: uppercase` | `uppercase` |
+| `letter-spacing: 0.02em` | `tracking-wide` |
+| `font-size: 14px` | `text-sm` |
+| `max-width: 400px` | `max-w-[400px]` |
+| `gap: 12px` | `gap-3` |
+| `min-height: 48px` | `min-h-12` |
+
 ### Do's ✓
-- Use `Space Mono` for all UI text (buttons, labels, headings)
-- Use `Inter` for body/paragraph text only
-- Always uppercase UI text (`text-transform: uppercase`)
-- Use offset shadows (`-Xpx Xpx 0px 0px var(--text)`)
-- Use `2px solid var(--text)` borders
-- Apply hover transform on interactive elements
+- Use `font-mono` for all UI text (buttons, labels, headings)
+- Use `font-sans` for body/paragraph text only
+- Always `uppercase` UI text
+- Use `shadow-offset-*` for offset shadows
+- Use `border-2 border-text` borders
+- Use `.btn` utility from `main.css` for buttons
 
 ### Don'ts ✗
-- Don't use rounded corners (except `border-radius: 2px` on buttons)
-- Don't use drop shadows (only offset shadows)
+- Don't use `rounded-*` (except `rounded-sm` on buttons)
+- Don't use Tailwind's default shadows (only `shadow-offset-*`)
 - Don't use gradients
 - Don't mix fonts within UI elements
-- Don't use colors outside the palette
+- Don't use colors outside the theme palette
 
 ---
 
@@ -539,170 +497,95 @@ main {
 ### Prediction Item (Live Stream)
 
 ```html
-<div class="prediction-item">
-  <span class="prediction-name">CAT</span>
-  <div class="prediction-bar">
-    <div class="prediction-bar-fill" style="width: 87%"></div>
+<div class="flex items-center gap-3 py-2 px-3 bg-bg border border-text
+  first:bg-accent first:border-2 transition-all duration-150">
+
+  <span class="font-mono text-sm uppercase tracking-wide flex-1">
+    CAT
+  </span>
+
+  <div class="w-[60px] md:w-[100px] h-2 bg-white border border-text overflow-hidden">
+    <div class="h-full bg-primary first:bg-text transition-[width] duration-200 ease-out"
+      style="width: 87%">
+    </div>
   </div>
-  <span class="prediction-confidence">87%</span>
+
+  <span class="font-mono text-xs text-gray min-w-[40px] text-right">
+    87%
+  </span>
 </div>
-```
-
-```css
-.prediction-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
-  background-color: #F4EFEA;
-  border: 1px solid #383838;
-}
-
-/* First item (top prediction) highlighted */
-.prediction-item:first-child {
-  background-color: #FFDE00;
-  border-width: 2px;
-}
-
-.prediction-name {
-  font-family: 'Space Mono', monospace;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  flex: 1;
-}
-
-.prediction-bar {
-  width: 60px;  /* mobile */
-  height: 8px;
-  background-color: #FFFFFF;
-  border: 1px solid #383838;
-  overflow: hidden;
-}
-
-@media (min-width: 728px) {
-  .prediction-bar { width: 100px; }
-}
-
-.prediction-bar-fill {
-  height: 100%;
-  background-color: #6FC2FF;
-  transition: width 200ms ease;
-}
-
-.prediction-confidence {
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
-  color: #A1A1A1;
-  min-width: 40px;
-  text-align: right;
-}
 ```
 
 ---
 
 ### Final Result Card
 
-Two-row layout with label/value pairs:
-
 ```html
-<div class="final-result">
-  <div class="final-result-row">
-    <span class="final-result-label">Result</span>
-    <span class="final-result-value success">CAT</span>
+<div class="p-5 md:p-6 bg-white border-2 border-text shadow-offset-md
+  w-[calc(100%-12px)] max-w-[400px]">
+
+  <div class="flex justify-between items-center py-3 border-b border-text">
+    <span class="font-mono text-sm uppercase text-gray tracking-wide">Result</span>
+    <span class="font-mono text-2xl md:text-[28px] uppercase tracking-wide text-success">
+      CAT
+    </span>
   </div>
-  <div class="final-result-row">
-    <span class="final-result-label">Confidence</span>
-    <span class="final-result-value success">87%</span>
+
+  <div class="flex justify-between items-center py-3">
+    <span class="font-mono text-sm uppercase text-gray tracking-wide">Confidence</span>
+    <span class="font-mono text-2xl md:text-[28px] uppercase tracking-wide text-success">
+      87%
+    </span>
   </div>
 </div>
 ```
 
-```css
-.final-result {
-  padding: 20px;
-  background-color: var(--white);
-  border: 2px solid var(--text);
-  box-shadow: -6px 6px 0px 0px var(--text);
-  width: calc(100% - 12px);
-  max-width: 400px;
-}
-
-.final-result-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 0;
-}
-
-.final-result-row:first-child {
-  border-bottom: 1px solid var(--text);
-}
-
-.final-result-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 14px;
-  text-transform: uppercase;
-  color: var(--gray);
-  letter-spacing: 0.02em;
-}
-
-.final-result-value {
-  font-family: 'Space Mono', monospace;
-  font-size: 24px;
-  text-transform: uppercase;
-  color: var(--text);
-  letter-spacing: 0.02em;
-}
-
-.final-result-value.success {
-  color: var(--success);
-}
-
-.final-result-value.fail {
-  color: var(--error);
-}
-
-@media (min-width: 728px) {
-  .final-result { padding: 24px; }
-  .final-result-value { font-size: 28px; }
-}
-```
+**Fail variant:** Replace `text-success` with `text-error`
 
 ---
 
 ### Prompt Examples
 
-Display suggested drawing options:
-
 ```html
-<div class="prompt-section">
-  <p class="prompt-label">Draw something like:</p>
-  <p class="prompt-examples">Cat, House, Tree, Car, Sun, Flower...</p>
+<div class="space-y-2">
+  <p class="font-mono text-sm uppercase text-gray tracking-wide">
+    Draw something like:
+  </p>
+  <p class="font-mono text-sm md:text-base uppercase tracking-wide text-text
+    max-w-[400px] leading-[160%]">
+    Cat, House, Tree, Car, Sun, Flower...
+  </p>
 </div>
 ```
 
+---
+
+## Theme Files
+
+All custom theme values are defined in `frontend/src/styles/main.css`:
+
 ```css
-.prompt-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 14px;
-  text-transform: uppercase;
-  color: var(--gray);
-  margin-bottom: 8px;
-  letter-spacing: 0.02em;
-}
+@import "tailwindcss";
 
-.prompt-examples {
-  font-family: 'Space Mono', monospace;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  color: var(--text);
-  max-width: 400px;
-  line-height: 160%;
-}
+@theme {
+  /* Colors */
+  --color-bg: #F4EFEA;
+  --color-text: #383838;
+  --color-primary: #6FC2FF;
+  --color-primary-hover: #2BA5FF;
+  --color-accent: #FFDE00;
+  --color-success: #53DBC9;
+  --color-error: #FF7169;
+  --color-gray: #A1A1A1;
 
-@media (min-width: 728px) {
-  .prompt-examples { font-size: 16px; }
+  /* Fonts */
+  --font-mono: "Space Mono", monospace;
+  --font-sans: "Inter", Arial, sans-serif;
+
+  /* Offset Shadows */
+  --shadow-offset-sm: -4px 4px 0px 0px #383838;
+  --shadow-offset-md: -6px 6px 0px 0px #383838;
+  --shadow-offset-lg: -8px 8px 0px 0px #383838;
+  --shadow-offset-hover: -7px 7px 0px 0px #383838;
 }
 ```
