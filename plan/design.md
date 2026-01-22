@@ -1,63 +1,90 @@
 # Guessme - System Design
 
-AI-powered draw guessing game.
+AI-powered number guessing game (MNIST-style).
 
-## Requirements
+## Milestone 0: Local POC with MLOps
 
-**Functional:** Single player, shareable game history via URL
+### Epic 1: Local K8s + Ray (POC) → [epic1_local_k8s_ray_poc.md](epic1_local_k8s_ray_poc.md)
+- Deploy locally with Tilt + K8s
+- Ray Serve for model serving
+- PyTorch CNN for MNIST
+- Prove end-to-end works
+- GitHub Action ready
 
-**Non-functional:** Geo-distributed (24 regions), 99.99% availability, tolerates stroke loss
+### Epic 2: Data Versioning
+- DVC setup (local remote)
+- Track MNIST dataset
 
-## Scale Estimation
+### Epic 3: Experiment Tracking
+- MLflow integration
+- Model registry
 
-| Metric | Value |
-|--------|-------|
-| DAU | 1M |
-| Users/region | 40K |
-| Games/user/day | 3 |
-| Drawings/game | 5 |
+### Epic 4: Pipeline Automation
+- Airflow DAG
+- Auto train → deploy
 
-**Data pipeline:**
-```
-Strokes (raw) → gzip (5x) → SVG → PNG 256×256 grayscale
-  50KB      →   10KB    → 40KB →     8-15KB
-```
-
-**Storage:** 2-4 GB/day/region (after compression)
-
-## Architecture
-
-```
-┌────────┐    WebSocket     ┌────────┐      ┌──────────┐      ┌──────────┐
-│   FE   │ ←──(gzip)────→   │   BE   │ ───→ │ MQ (in)  │ ───→ │  Stream  │
-│ Vue.js │                  │FastAPI │      └──────────┘      │ Processor│
-└────────┘                  └────┬───┘                        └────┬─────┘
-     ↑                          │                                  │
-     │         "turtle"         │                                  ↓
-     └──────────────────────────┤                            ┌──────────┐
-                                │      ┌──────────┐          │ ML Model │
-                                └───── │ MQ (out) │ ←────────└──────────┘
-                                       └──────────┘   "turtle"
-```
-
-**Flow:** FE → strokes → BE → MQ(in) → Stream Processor → PNG → ML → prediction("turtle") → MQ(out) → BE → WS → FE
+---
 
 ## Tech Stack
 
-| Layer | Phase 1 | Phase 2 |
-|-------|---------|---------|
-| Frontend | Vue.js + Vite | - |
-| Backend | FastAPI + uv | - |
-| Message Queue | RabbitMQ | Kafka |
-| Stream Processing | Ray | Flink |
+| Layer | Tool |
+|-------|------|
+| Frontend | Vue 3 + Vite |
+| Backend | FastAPI + Ray Serve |
+| Model | PyTorch CNN |
+| Local Dev | Tilt + K8s |
+| Data Versioning | DVC (local) |
+| Experiment Tracking | MLflow |
+| Distributed Training | Ray Train |
+| Pipeline | Airflow |
 
-**Note:** Abstract MQ/stream interfaces for phase migration.
+## Architecture (Epic 1 - POC)
 
-## Testing
+```
+┌────────┐  WS   ┌─────────────┐     ┌─────────────┐
+│   FE   │←────→│  Ray Serve  │────→│  CNN Model  │
+│ Vue.js │      │  (FastAPI)  │     │  (predict)  │
+└────────┘      └─────────────┘     └─────────────┘
+         \_______ K8s + Tilt (local) _______/
+```
 
-| Scope | Framework |
-|-------|-----------|
-| E2E | Playwright |
-| Backend | pytest |
-| Frontend | Vitest |
+## Architecture (Full - Epic 4)
 
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Airflow   │────→│  Ray Train  │────→│   MLflow    │
+│ (pipeline)  │     │  (train)    │     │ (tracking)  │
+└─────────────┘     └──────┬──────┘     └─────────────┘
+                          │
+┌─────────────┐           ↓
+│     DVC     │     ┌─────────────┐
+│   (data)    │────→│ Model Reg   │
+└─────────────┘     └──────┬──────┘
+                          │ deploy
+                          ↓
+┌────────┐  WS   ┌─────────────┐     ┌─────────────┐
+│   FE   │←────→│  Ray Serve  │────→│  CNN Model  │
+│ Vue.js │      │  (FastAPI)  │     │  (predict)  │
+└────────┘      └─────────────┘     └─────────────┘
+```
+
+## Testing Strategy
+
+| Level | Scope | Framework |
+|-------|-------|-----------|
+| UT | Backend unit | pytest |
+| UT | Frontend unit | Vitest |
+| UT | Model unit | pytest |
+| IT | API integration | pytest + httpx |
+| IT | K8s services | pytest + k8s client |
+| E2E | Full flow | Playwright |
+
+### Per Epic Testing
+
+**Epic 1 (POC):**
+- UT: CNN model forward pass, preprocessing
+- IT: Ray Serve API, WebSocket flow
+- E2E: Draw → predict → display result
+
+**Epic 2-4:**
+- IT: DVC data fetch, MLflow logging, Airflow DAG triggers
