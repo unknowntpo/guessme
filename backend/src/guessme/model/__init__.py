@@ -1,1 +1,0 @@
-"""MNIST CNN model module."""
