@@ -1,0 +1,5 @@
+# Training data (downloaded)
+data/
+
+# Model weights (generated)
+weights/

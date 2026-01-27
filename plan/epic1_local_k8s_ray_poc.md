@@ -1,6 +1,6 @@
 # Epic 1: Local K8s + Ray POC
 
-**Status:** Todo
+**Status:** In Progress
 
 ## Summary
 
@@ -22,9 +22,9 @@ Deploy MNIST CNN model with Ray Serve on local K8s (Tilt). Prove e2e: draw digit
 ## Checklist
 
 ### Phase 1: PyTorch CNN Model (TDD)
-- [ ] UT: Model forward pass (28x28 → 10 classes)
-- [ ] UT: Preprocessing (canvas → tensor)
-- [ ] Implement simple CNN (Conv → Pool → FC)
+- [x] UT: Model forward pass (28x28 → 10 classes)
+- [x] UT: Preprocessing (canvas → tensor)
+- [x] Implement simple CNN (Conv → Pool → FC)
 - [ ] Train on MNIST, save weights
 
 ### Phase 2: Ray Serve Integration (TDD)
