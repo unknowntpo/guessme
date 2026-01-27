@@ -2,6 +2,7 @@ import torch
 
 from guessme.model.cnn import MNISTNet
 
+
 def test_cnn_forward_shape():
     """
     Input:(batch,1, 28, 28) -> Output: (batch,10)

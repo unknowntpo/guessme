@@ -1,8 +1,6 @@
 """Tests for training functions."""
 
-import torch
-
-from guessme.model.train import get_device, get_dataloaders
+from guessme.model.train import get_dataloaders, get_device
 
 
 def test_get_device():

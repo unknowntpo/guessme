@@ -2,8 +2,9 @@
 
 import torch
 
+
 def print_ascii(tensor: torch.Tensor) -> None:
-    img = tensor.squeeze() # Remove channel dim if present
+    img = tensor.squeeze()  # Remove channel dim if present
     chars = " .:-=+*#%@"  # Dark to light
 
     for row in img:
@@ -13,6 +14,7 @@ def print_ascii(tensor: torch.Tensor) -> None:
             line += chars[idx]
         print(line)
     print()
+
 
 # TODO: define points with custom struct
 def canvas_to_tensor(points: list[dict]) -> torch.Tensor:
@@ -36,5 +38,3 @@ def canvas_to_tensor(points: list[dict]) -> torch.Tensor:
         img[y, x] = 1.0
 
     return img.unsqueeze(0)
-
-

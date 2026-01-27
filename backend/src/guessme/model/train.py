@@ -1,10 +1,11 @@
 """MNIST training script with PyTorch."""
 
+from pathlib import Path
+
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-from pathlib import Path
 
 from guessme.model.cnn import MNISTNet
 
@@ -28,39 +29,24 @@ def get_dataloaders(batch_size: int = 64) -> tuple[DataLoader, DataLoader]:
         (train_loader, test_loader)
     """
     # MNIST normalization values
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
-    ])
+    transform = transforms.Compose(
+        [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
+    )
 
     # Download and load datasets
     data_dir = Path(__file__).parent / "data"
 
     train_dataset = datasets.MNIST(
-        root=data_dir,
-        train=True,
-        download=True,
-        transform=transform
+        root=data_dir, train=True, download=True, transform=transform
     )
 
     test_dataset = datasets.MNIST(
-        root=data_dir,
-        train=False,
-        download=True,
-        transform=transform
+        root=data_dir, train=False, download=True, transform=transform
     )
 
-    train_loader = DataLoader(
-        train_dataset,
-        batch_size=batch_size,
-        shuffle=True
-    )
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
-    test_loader = DataLoader(
-        test_dataset,
-        batch_size=batch_size,
-        shuffle=False
-    )
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
     return train_loader, test_loader
 
@@ -70,7 +56,7 @@ def train_epoch(
     loader: DataLoader,
     optimizer: torch.optim.Optimizer,
     criterion: nn.Module,
-    device: torch.device
+    device: torch.device,
 ) -> float:
     """Train for one epoch.
 
@@ -104,11 +90,7 @@ def train_epoch(
     return total_loss / len(loader)
 
 
-def evaluate(
-    model: nn.Module,
-    loader: DataLoader,
-    device: torch.device
-) -> float:
+def evaluate(model: nn.Module, loader: DataLoader, device: torch.device) -> float:
     """Evaluate model accuracy.
 
     Args:
@@ -162,7 +144,7 @@ def main(epochs: int = 5, batch_size: int = 64, lr: float = 0.001) -> None:
         loss = train_epoch(model, train_loader, optimizer, criterion, device)
         acc = evaluate(model, test_loader, device)
 
-        print(f"Epoch {epoch+1}/{epochs} | Loss: {loss:.4f} | Acc: {acc:.2f}%")
+        print(f"Epoch {epoch + 1}/{epochs} | Loss: {loss:.4f} | Acc: {acc:.2f}%")
 
         # Save best model
         if acc > best_acc:
@@ -176,4 +158,12 @@ def main(epochs: int = 5, batch_size: int = 64, lr: float = 0.001) -> None:
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Train MNIST model")
+    parser.add_argument("--epochs", type=int, default=5, help="Number of epochs")
+    parser.add_argument("--batch-size", type=int, default=64, help="Batch size")
+    parser.add_argument("--lr", type=float, default=0.001, help="Learning rate")
+    args = parser.parse_args()
+
+    main(epochs=args.epochs, batch_size=args.batch_size, lr=args.lr)

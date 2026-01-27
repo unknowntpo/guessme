@@ -21,16 +21,16 @@ Deploy MNIST CNN model with Ray Serve on local K8s (Tilt). Prove e2e: draw digit
 
 ## Checklist
 
-### Phase 1: PyTorch CNN Model (TDD)
+### Phase 1: PyTorch CNN Model (TDD) ✅
 - [x] UT: Model forward pass (28x28 → 10 classes)
 - [x] UT: Preprocessing (canvas → tensor)
 - [x] Implement simple CNN (Conv → Pool → FC)
-- [ ] Train on MNIST, save weights
+- [x] Train on MNIST, save weights (99.27% accuracy)
 
-### Phase 2: Ray Serve Integration (TDD)
-- [ ] UT: Model loading, inference
-- [ ] IT: Ray Serve /predict endpoint
-- [ ] Update predictor actor to use real model
+### Phase 2: Ray Serve Integration (TDD) ✅
+- [x] UT: Model loading, inference
+- [x] IT: Ray Serve /predict endpoint
+- [x] Update predictor actor to use real model
 
 ### Phase 3: K8s + Tilt Setup
 - [ ] Dockerfile for backend
