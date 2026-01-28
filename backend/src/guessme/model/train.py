@@ -126,7 +126,10 @@ def main(epochs: int = 5, batch_size: int = 64, lr: float = 0.001) -> None:
         lr: Learning rate
     """
     # Setup MLflow
-    mlflow_db = Path(__file__).parent.parent.parent.parent.parent / "mlflow.db"
+    # MLflow db in backend/ directory (4 levels up from train.py)
+    backend_dir = Path(__file__).resolve().parent.parent.parent.parent
+    mlflow_db = backend_dir / "mlflow.db"
+    print(f"[DEBUG] MLflow DB: {mlflow_db}")
     mlflow.set_tracking_uri(f"sqlite:///{mlflow_db}")
     mlflow.set_experiment("mnist-training")
 
