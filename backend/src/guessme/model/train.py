@@ -67,7 +67,6 @@ def get_dataloaders(batch_size: int = 64) -> tuple[DataLoader, DataLoader]:
     return train_loader, test_loader
 
 
-@mlflow.trace(name="train_epoch", span_type="CHAIN")
 def train_epoch(
     model: nn.Module,
     loader: DataLoader,
@@ -107,7 +106,6 @@ def train_epoch(
     return total_loss / len(loader)
 
 
-@mlflow.trace(name="evaluate", span_type="CHAIN")
 def evaluate(model: nn.Module, loader: DataLoader, device: torch.device) -> float:
     """Evaluate model accuracy.
 

@@ -1,0 +1,91 @@
+# Guessme Backend - Development Commands
+
+# Default: show available commands
+default:
+    @just --list
+
+# === MLflow ===
+
+# Start MLflow UI (port 5000)
+mlflow:
+    uv run mlflow ui --backend-store-uri sqlite:///mlflow.db --port 5000
+
+# === Training ===
+
+# Train model (default 5 epochs)
+train epochs="5":
+    uv run python -m guessme.model.train --epochs {{epochs}}
+
+# Quick train (1 epoch, for testing)
+train-quick:
+    uv run python -m guessme.model.train --epochs 1
+
+# === Ray Serve ===
+
+# Start Ray Serve API server (port 8000)
+serve:
+    uv run serve run guessme.main:app
+
+# === Testing ===
+
+# Run all tests
+test:
+    uv run pytest -v
+
+# Run unit tests only
+test-unit:
+    uv run pytest tests/unit -v
+
+# Run integration tests only
+test-int:
+    uv run pytest tests/integration -v
+
+# === Linting ===
+
+# Run linter
+lint:
+    uv run ruff check .
+
+# Run formatter check
+fmt-check:
+    uv run ruff format --check .
+
+# Format code
+fmt:
+    uv run ruff format .
+
+# === API Requests ===
+
+# Health check
+api-health:
+    curl -s http://localhost:8000/health | jq
+
+# Predict digit "1" (vertical line)
+api-predict-1:
+    curl -s -X POST http://localhost:8000/predict \
+        -H "Content-Type: application/json" \
+        -d '{"points": [{"x": 140, "y": 50}, {"x": 140, "y": 100}, {"x": 140, "y": 150}, {"x": 140, "y": 200}, {"x": 140, "y": 250}]}' | jq
+
+# Predict digit "0" (circle-ish)
+api-predict-0:
+    curl -s -X POST http://localhost:8000/predict \
+        -H "Content-Type: application/json" \
+        -d '{"points": [{"x": 100, "y": 100}, {"x": 80, "y": 140}, {"x": 80, "y": 180}, {"x": 100, "y": 220}, {"x": 140, "y": 240}, {"x": 180, "y": 220}, {"x": 200, "y": 180}, {"x": 200, "y": 140}, {"x": 180, "y": 100}, {"x": 140, "y": 80}, {"x": 100, "y": 100}]}' | jq
+
+# Send multiple predictions (for tracing demo)
+api-predict-many:
+    @echo "Sending 5 predictions..."
+    @for i in 1 2 3 4 5; do \
+        curl -s -X POST http://localhost:8000/predict \
+            -H "Content-Type: application/json" \
+            -d '{"points": [{"x": 140, "y": 50}, {"x": 140, "y": 150}, {"x": 140, "y": 250}]}' | jq -c; \
+    done
+
+# === Combined ===
+
+# Start both MLflow and Ray Serve (use in separate terminals)
+dev:
+    @echo "Run in separate terminals:"
+    @echo "  Terminal 1: just mlflow"
+    @echo "  Terminal 2: just serve"
+    @echo "  Terminal 3: just api-predict-many"
