@@ -1,13 +1,19 @@
-"""Ray Serve deployment for MNIST prediction."""
+"""Ray Serve deployment for MNIST prediction with MLflow tracing."""
 
 from pathlib import Path
 
+import mlflow
 import torch
 import torch.nn.functional as F
 from ray import serve
 
 from guessme.model.cnn import MNISTNet
 from guessme.model.preprocess import canvas_to_tensor
+
+# Configure MLflow
+_backend_dir = Path(__file__).resolve().parent.parent.parent.parent
+mlflow.set_tracking_uri(f"sqlite:///{_backend_dir / 'mlflow.db'}")
+mlflow.set_experiment("mnist-inference")
 
 
 class Predictor:
@@ -44,6 +50,7 @@ class Predictor:
 
         self.model.eval()
 
+    @mlflow.trace(name="predict", span_type="CHAIN")
     def predict(self, points: list[dict]) -> dict:
         """Predict digit from canvas points.
 
@@ -53,7 +60,17 @@ class Predictor:
         Returns:
             {"digit": int, "confidence": int}
         """
-        # Preprocess
+        # Preprocess (traced)
+        tensor = self._preprocess(points)
+
+        # Inference (traced)
+        result = self._inference(tensor)
+
+        return result
+
+    @mlflow.trace(name="preprocess", span_type="PARSER")
+    def _preprocess(self, points: list[dict]) -> torch.Tensor:
+        """Preprocess canvas points to tensor."""
         tensor = canvas_to_tensor(points)
 
         # Normalize like MNIST (mean=0.1307, std=0.3081)
@@ -62,7 +79,11 @@ class Predictor:
         # Add batch dimension: (1, 28, 28) -> (1, 1, 28, 28)
         tensor = tensor.unsqueeze(0).to(self.device)
 
-        # Inference
+        return tensor
+
+    @mlflow.trace(name="inference", span_type="LLM")
+    def _inference(self, tensor: torch.Tensor) -> dict:
+        """Run model inference."""
         with torch.no_grad():
             logits = self.model(tensor)
             probs = F.softmax(logits, dim=1)
