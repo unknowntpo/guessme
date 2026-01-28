@@ -147,6 +147,7 @@ def main(epochs: int = 5, batch_size: int = 64, lr: float = 0.001) -> None:
     print(f"[DEBUG] MLflow DB: {mlflow_db}")
     mlflow.set_tracking_uri(f"sqlite:///{mlflow_db}")
     mlflow.set_experiment("mnist-training")
+    mlflow.enable_system_metrics_logging()
 
     # Setup
     device = get_device()
