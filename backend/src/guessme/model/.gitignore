@@ -1,5 +1,7 @@
 # Training data (downloaded)
 data/
 
-# Model weights (generated)
-weights/
+# Model weights (tracked by DVC, not git)
+weights/*.pt
+!weights/.gitignore
+!weights/*.pt.dvc

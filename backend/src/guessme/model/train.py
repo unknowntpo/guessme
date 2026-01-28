@@ -1,7 +1,8 @@
-"""MNIST training script with PyTorch."""
+"""MNIST training script with PyTorch and MLflow tracking."""
 
 from pathlib import Path
 
+import mlflow
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -124,6 +125,11 @@ def main(epochs: int = 5, batch_size: int = 64, lr: float = 0.001) -> None:
         batch_size: Batch size for training
         lr: Learning rate
     """
+    # Setup MLflow
+    mlflow_db = Path(__file__).parent.parent.parent.parent.parent / "mlflow.db"
+    mlflow.set_tracking_uri(f"sqlite:///{mlflow_db}")
+    mlflow.set_experiment("mnist-training")
+
     # Setup
     device = get_device()
     print(f"Using device: {device}")
@@ -138,23 +144,35 @@ def main(epochs: int = 5, batch_size: int = 64, lr: float = 0.001) -> None:
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-    # Train
-    best_acc = 0.0
-    for epoch in range(epochs):
-        loss = train_epoch(model, train_loader, optimizer, criterion, device)
-        acc = evaluate(model, test_loader, device)
+    with mlflow.start_run():
+        # Log parameters
+        mlflow.log_params({"epochs": epochs, "batch_size": batch_size, "lr": lr})
+        mlflow.log_param("device", str(device))
 
-        print(f"Epoch {epoch + 1}/{epochs} | Loss: {loss:.4f} | Acc: {acc:.2f}%")
+        # Train
+        best_acc = 0.0
+        weights_dir = Path(__file__).parent / "weights"
+        weights_dir.mkdir(exist_ok=True)
 
-        # Save best model
-        if acc > best_acc:
-            best_acc = acc
-            weights_dir = Path(__file__).parent / "weights"
-            weights_dir.mkdir(exist_ok=True)
-            torch.save(model.state_dict(), weights_dir / "mnist_cnn.pt")
-            print(f"  → Saved best model (acc: {acc:.2f}%)")
+        for epoch in range(epochs):
+            loss = train_epoch(model, train_loader, optimizer, criterion, device)
+            acc = evaluate(model, test_loader, device)
 
-    print(f"\nTraining complete! Best accuracy: {best_acc:.2f}%")
+            # Log metrics per epoch
+            mlflow.log_metrics({"loss": loss, "accuracy": acc}, step=epoch)
+            print(f"Epoch {epoch + 1}/{epochs} | Loss: {loss:.4f} | Acc: {acc:.2f}%")
+
+            # Save best model
+            if acc > best_acc:
+                best_acc = acc
+                torch.save(model.state_dict(), weights_dir / "mnist_cnn.pt")
+                print(f"  → Saved best model (acc: {acc:.2f}%)")
+
+        # Log final metrics and model artifact
+        mlflow.log_metric("best_accuracy", best_acc)
+        mlflow.log_artifact(weights_dir / "mnist_cnn.pt")
+        print(f"\nTraining complete! Best accuracy: {best_acc:.2f}%")
+        print(f"MLflow run ID: {mlflow.active_run().info.run_id}")
 
 
 if __name__ == "__main__":

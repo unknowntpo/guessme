@@ -1,0 +1,5 @@
+outs:
+- md5: 7597d01b5a08157023fb729ae1d31e81
+  size: 1690153
+  hash: md5
+  path: mnist_cnn.pt

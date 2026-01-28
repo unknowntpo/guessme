@@ -33,11 +33,12 @@ jobs:
       - name: Run formatter check
         run: uv run ruff format --check .
 
-      - name: Train model (for tests)
-        run: uv run python -m guessme.model.train --epochs 1
+      - name: Download model weights from release
+        run: |
+          mkdir -p src/guessme/model/weights
+          gh release download v0.1.0 -p "mnist_cnn.pt" -D src/guessme/model/weights/
         env:
-          # Use CPU in CI (no MPS/CUDA)
-          PYTORCH_ENABLE_MPS_FALLBACK: 1
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run unit tests
         run: uv run pytest tests/unit -v
