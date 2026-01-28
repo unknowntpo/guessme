@@ -169,31 +169,37 @@ def main(epochs: int = 5, batch_size: int = 64, lr: float = 0.001) -> None:
         mlflow.log_params({f"sys_{k}": v for k, v in sys_info.items()})
 
         # Log hyperparameters
-        mlflow.log_params({
-            "epochs": epochs,
-            "batch_size": batch_size,
-            "learning_rate": lr,
-            "optimizer": "Adam",
-            "loss_function": "CrossEntropyLoss",
-            "device": str(device),
-        })
+        mlflow.log_params(
+            {
+                "epochs": epochs,
+                "batch_size": batch_size,
+                "learning_rate": lr,
+                "optimizer": "Adam",
+                "loss_function": "CrossEntropyLoss",
+                "device": str(device),
+            }
+        )
 
         # Log dataset info
-        mlflow.log_params({
-            "train_samples": len(train_loader.dataset),
-            "test_samples": len(test_loader.dataset),
-            "num_classes": 10,
-            "input_shape": "1x28x28",
-        })
+        mlflow.log_params(
+            {
+                "train_samples": len(train_loader.dataset),
+                "test_samples": len(test_loader.dataset),
+                "num_classes": 10,
+                "input_shape": "1x28x28",
+            }
+        )
 
         # Log model architecture
         total_params = sum(p.numel() for p in model.parameters())
         trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-        mlflow.log_params({
-            "model_name": "MNISTNet",
-            "total_params": total_params,
-            "trainable_params": trainable_params,
-        })
+        mlflow.log_params(
+            {
+                "model_name": "MNISTNet",
+                "total_params": total_params,
+                "trainable_params": trainable_params,
+            }
+        )
 
         # Train
         best_acc = 0.0
@@ -208,12 +214,17 @@ def main(epochs: int = 5, batch_size: int = 64, lr: float = 0.001) -> None:
             epoch_time = time.time() - epoch_start
 
             # Log metrics per epoch
-            mlflow.log_metrics({
-                "loss": loss,
-                "accuracy": acc,
-                "epoch_time_sec": epoch_time,
-            }, step=epoch)
-            print(f"Epoch {epoch + 1}/{epochs} | Loss: {loss:.4f} | Acc: {acc:.2f}% | Time: {epoch_time:.1f}s")
+            mlflow.log_metrics(
+                {
+                    "loss": loss,
+                    "accuracy": acc,
+                    "epoch_time_sec": epoch_time,
+                },
+                step=epoch,
+            )
+            print(
+                f"Epoch {epoch + 1}/{epochs} | Loss: {loss:.4f} | Acc: {acc:.2f}% | Time: {epoch_time:.1f}s"
+            )
 
             # Save best model
             if acc > best_acc:
@@ -223,12 +234,16 @@ def main(epochs: int = 5, batch_size: int = 64, lr: float = 0.001) -> None:
 
         # Log final metrics and model artifact
         total_time = time.time() - start_time
-        mlflow.log_metrics({
-            "best_accuracy": best_acc,
-            "total_training_time_sec": total_time,
-        })
+        mlflow.log_metrics(
+            {
+                "best_accuracy": best_acc,
+                "total_training_time_sec": total_time,
+            }
+        )
         mlflow.log_artifact(str(weights_dir / "mnist_cnn.pt"))
-        print(f"\nTraining complete! Best accuracy: {best_acc:.2f}% | Total time: {total_time:.1f}s")
+        print(
+            f"\nTraining complete! Best accuracy: {best_acc:.2f}% | Total time: {total_time:.1f}s"
+        )
         print(f"MLflow run ID: {mlflow.active_run().info.run_id}")
 
 
