@@ -71,6 +71,11 @@ class Predictor:
     @mlflow.trace(name="preprocess", span_type="PARSER")
     def _preprocess(self, points: list[dict]) -> torch.Tensor:
         """Preprocess canvas points to tensor."""
+        # Log event for input stats
+        mlflow.tracing.add_event_to_current_span(
+            "input_received", {"num_points": len(points)}
+        )
+
         tensor = canvas_to_tensor(points)
 
         # Normalize like MNIST (mean=0.1307, std=0.3081)
@@ -78,6 +83,11 @@ class Predictor:
 
         # Add batch dimension: (1, 28, 28) -> (1, 1, 28, 28)
         tensor = tensor.unsqueeze(0).to(self.device)
+
+        mlflow.tracing.add_event_to_current_span(
+            "tensor_ready",
+            {"shape": str(list(tensor.shape)), "device": str(self.device)},
+        )
 
         return tensor
 
@@ -89,7 +99,21 @@ class Predictor:
             probs = F.softmax(logits, dim=1)
             confidence, digit = torch.max(probs, dim=1)
 
-        return {"digit": digit.item(), "confidence": int(confidence.item() * 100)}
+        conf_pct = int(confidence.item() * 100)
+        result = {"digit": digit.item(), "confidence": conf_pct}
+
+        # Log event based on confidence level
+        if conf_pct < 50:
+            mlflow.tracing.add_event_to_current_span(
+                "low_confidence_warning",
+                {"confidence": conf_pct, "digit": digit.item()},
+            )
+        else:
+            mlflow.tracing.add_event_to_current_span(
+                "prediction_complete", {"confidence": conf_pct, "digit": digit.item()}
+            )
+
+        return result
 
 
 @serve.deployment
