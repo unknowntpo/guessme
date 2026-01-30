@@ -7,14 +7,27 @@ export interface Point {
 // Single stroke (array of points)
 export type Stroke = Point[]
 
-// ML prediction result
+// ML prediction result (WebSocket)
 export interface Prediction {
   label: string
   confidence: number
 }
 
-// Game state
+// REST API types
+export interface PredictRequest {
+  points: Point[]
+}
+
+export interface PredictResponse {
+  digit: number
+  confidence: number  // 0-100
+}
+
+// Game state (WebSocket mode - deprecated)
 export type GameState = 'idle' | 'playing' | 'gameOver'
+
+// Simple game state (REST mode)
+export type SimpleGameState = 'idle' | 'drawing' | 'loading' | 'result'
 
 // WebSocket message types
 export interface ClientMessage {
