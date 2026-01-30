@@ -8,7 +8,7 @@ import torch.nn.functional as F
 from ray import serve
 
 from guessme.model.cnn import MNISTNet
-from guessme.model.preprocess import canvas_to_tensor
+from guessme.model.preprocess import canvas_to_tensor, tensor_to_ascii
 
 # Configure MLflow
 _backend_dir = Path(__file__).resolve().parent.parent.parent.parent
@@ -72,6 +72,12 @@ class Predictor:
     def _preprocess(self, points: list[dict]) -> torch.Tensor:
         """Preprocess canvas points to tensor."""
         tensor = canvas_to_tensor(points)
+
+        # Log ASCII visualization to trace for debugging
+        ascii_art = tensor_to_ascii(tensor)
+        span = mlflow.get_current_active_span()
+        if span:
+            span.set_attribute("input_ascii", ascii_art)
 
         # Normalize like MNIST (mean=0.1307, std=0.3081)
         tensor = (tensor - 0.1307) / 0.3081

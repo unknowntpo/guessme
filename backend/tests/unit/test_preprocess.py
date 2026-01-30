@@ -4,7 +4,12 @@ import sys
 import pytest
 import torch
 
-from guessme.model.preprocess import CANVAS_SIZE, canvas_to_tensor, print_ascii
+from guessme.model.preprocess import (
+    CANVAS_SIZE,
+    canvas_to_tensor,
+    print_ascii,
+    tensor_to_ascii,
+)
 
 
 def test_canvas_to_tensor():
@@ -172,6 +177,32 @@ class TestPrintAscii:
         output = captured.getvalue()
         # 0.5 * 9 = 4.5 -> idx 4 -> char '+'
         assert output[0] in "=+"  # chars at idx 4-5
+
+
+# === tensor_to_ascii tests ===
+
+
+def test_tensor_to_ascii_returns_string():
+    """tensor_to_ascii returns string with 28 lines"""
+    tensor = torch.zeros(1, 28, 28)
+    tensor[0, 10, 10] = 1.0
+
+    result = tensor_to_ascii(tensor)
+
+    assert isinstance(result, str)
+    lines = result.split("\n")
+    assert len(lines) == 28
+    assert "@" in lines[10]  # Row 10 has the pixel
+
+
+def test_tensor_to_ascii_full():
+    """Full tensor returns all @ chars"""
+    tensor = torch.ones(1, 28, 28)
+    result = tensor_to_ascii(tensor)
+
+    lines = result.split("\n")
+    for line in lines:
+        assert line == "@" * 28
 
 
 # === Debug mode test ===

@@ -5,16 +5,24 @@ import torch
 CANVAS_SIZE = 400  # Frontend canvas is 400x400 pixels
 
 
-def print_ascii(tensor: torch.Tensor) -> None:
+def tensor_to_ascii(tensor: torch.Tensor) -> str:
+    """Convert tensor to ASCII art string for visualization."""
     img = tensor.squeeze()  # Remove channel dim if present
     chars = " .:-=+*#%@"  # Dark to light
 
+    lines = []
     for row in img:
         line = ""
         for val in row:
             idx = int(val.item() * (len(chars) - 1))
             line += chars[idx]
-        print(line)
+        lines.append(line)
+    return "\n".join(lines)
+
+
+def print_ascii(tensor: torch.Tensor) -> None:
+    """Print ASCII art of tensor to stdout."""
+    print(tensor_to_ascii(tensor))
     print()
 
 
