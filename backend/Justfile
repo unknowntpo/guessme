@@ -22,13 +22,16 @@ train-quick:
 
 # === Ray Serve ===
 
+# MLflow tracking URI (absolute path for Ray workers)
+mlflow_uri := "sqlite:///" + justfile_directory() + "/mlflow.db"
+
 # Start Ray Serve API server (port 8000)
 serve:
-    uv run serve run guessme.main:app
+    MLFLOW_TRACKING_URI={{mlflow_uri}} uv run serve run guessme.main:app
 
 # Start Ray Serve locally (skip Ray venv for faster dev)
 serve-local:
-    RAY_RUNTIME_ENV_LOCAL_DEV_MODE=1 uv run serve run guessme.main:app
+    MLFLOW_TRACKING_URI={{mlflow_uri}} RAY_RUNTIME_ENV_LOCAL_DEV_MODE=1 uv run serve run guessme.main:app
 
 # === Testing ===
 

@@ -1,5 +1,6 @@
 """Ray Serve deployment for MNIST prediction with MLflow tracing."""
 
+import os
 from pathlib import Path
 
 import mlflow
@@ -10,9 +11,12 @@ from ray import serve
 from guessme.model.cnn import MNISTNet
 from guessme.model.preprocess import canvas_to_tensor, tensor_to_ascii
 
-# Configure MLflow
-_backend_dir = Path(__file__).resolve().parent.parent.parent.parent
-mlflow.set_tracking_uri(f"sqlite:///{_backend_dir / 'mlflow.db'}")
+# Configure MLflow - use env var or default to backend dir
+_mlflow_db = os.environ.get(
+    "MLFLOW_TRACKING_URI",
+    f"sqlite:///{Path.home()}/repo/unknowntpo/guessme/backend/mlflow.db",
+)
+mlflow.set_tracking_uri(_mlflow_db)
 mlflow.set_experiment("mnist-inference")
 
 
