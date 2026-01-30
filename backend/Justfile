@@ -26,6 +26,10 @@ train-quick:
 serve:
     uv run serve run guessme.main:app
 
+# Start Ray Serve locally (skip Ray venv for faster dev)
+serve-local:
+    RAY_RUNTIME_ENV_LOCAL_DEV_MODE=1 uv run serve run guessme.main:app
+
 # === Testing ===
 
 # Run all tests
