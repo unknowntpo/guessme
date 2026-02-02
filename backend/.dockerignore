@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Tests
+tests/
+.coverage
+htmlcov/
+
+# Data (large files)
+src/guessme/model/data/
+
+# MLflow
+mlflow.db
+mlruns/
+
+# DVC
+.dvc/
+
+# Git
+.git/
+.gitignore
+
+# Misc
+*.md
+*.log

@@ -32,21 +32,35 @@ Deploy MNIST CNN model with Ray Serve on local K8s (Tilt). Prove e2e: draw digit
 - [x] IT: Ray Serve /predict endpoint
 - [x] Update predictor actor to use real model
 
-### Phase 3: K8s + Tilt Setup
+### Phase 3: MLflow + DVC ✅
+- [x] DVC init, track model weights
+- [x] MLflow SQLite backend for training
+- [x] MLflow tracing for inference
+- [x] CI: Download weights from GitHub Release
+- [x] Preprocessing pipeline (dilate, center, blur)
+
+### Phase 4: K8s + Tilt Setup
 - [ ] Dockerfile for backend
 - [ ] K8s manifests (deployment, service)
 - [ ] Tiltfile for hot reload
 - [ ] Local registry setup
 
-### Phase 4: Frontend Adapt
+### Phase 5: Frontend Adapt
+- [x] REST-based game mode
+- [x] CORS middleware
 - [ ] Update canvas to 28x28 grid style
-- [ ] IT: WebSocket with K8s backend
 - [ ] E2E: Full draw → predict flow
 
-### Phase 5: CI/CD
-- [ ] GitHub Action: UT + IT
+### Phase 6: CI/CD ✅
+- [x] GitHub Action: UT + IT
+- [x] Download weights from GitHub Release
 - [ ] GitHub Action: Build container
-- [ ] (Optional) K8s IT in CI
+
+### Phase 7: K8s + Tilt Setup (Future)
+- [ ] Dockerfile for backend
+- [ ] K8s manifests (deployment, service)
+- [ ] Tiltfile for hot reload
+- [ ] Local registry setup
 
 ## Test Summary
 
@@ -115,3 +129,7 @@ torchvision
 - Reuse existing FastAPI + Ray Serve from old epic
 - CNN: 2 conv layers + 2 FC layers (simple)
 - Canvas sends 28x28 grayscale image data
+
+## TODO (Future)
+
+- [ ] **Ray Train + MLflow integration**: Use Ray Train for distributed training with MLflow tracking. Reference: `/Users/unknowntpo/repo/unknowntpo/ml_playground`
