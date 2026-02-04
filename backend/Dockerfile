@@ -22,6 +22,9 @@ RUN uv sync --frozen --no-dev
 # Stage 2: Runtime
 FROM python:3.12-slim AS runtime
 
+# Install wget (required by KubeRay readiness probes) and curl (for health checks)
+RUN apt-get update && apt-get install -y --no-install-recommends wget curl && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 # Copy virtual environment from builder
@@ -37,12 +40,15 @@ COPY src/guessme/model/weights/ /app/src/guessme/model/weights/
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONPATH="/app/src"
 
-# Ray Serve port
-EXPOSE 8000
+# Symlink ray binary so KubeRay's `bash -c "ray start ..."` can find it
+RUN ln -sf /app/.venv/bin/ray /usr/local/bin/ray
+
+# Ray ports: GCS, Dashboard, Serve
+EXPOSE 6379 8265 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Run Ray Serve
-CMD ["serve", "run", "--host", "0.0.0.0", "guessme.main:app"]
+# Ray head mode — RayService manages serve deployments
+CMD ["ray", "start", "--head", "--block", "--dashboard-host=0.0.0.0"]

@@ -5,9 +5,4 @@ namespace: guessme
 
 resources:
   - namespace.yaml
-  - deployment.yaml
-  - service.yaml
-
-commonLabels:
-  app: guessme
-  managed-by: kustomize
+  - rayservice.yaml
