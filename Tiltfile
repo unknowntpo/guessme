@@ -21,9 +21,12 @@ docker_build(
     only=['src/', 'pyproject.toml', 'uv.lock'],
 )
 
-# Tell Tilt where to find image refs in RayService CRD
+# Tell Tilt where to find image refs in RayService CRD (head + worker)
 k8s_image_json_path(
-    '{.spec.rayClusterConfig.headGroupSpec.template.spec.containers[*].image}',
+    [
+        '{.spec.rayClusterConfig.headGroupSpec.template.spec.containers[*].image}',
+        '{.spec.rayClusterConfig.workerGroupSpecs[*].template.spec.containers[*].image}',
+    ],
     api_version='ray.io/v1',
     kind='RayService',
 )
@@ -35,7 +38,10 @@ k8s_yaml(kustomize('k8s'))
 # extra_pod_selectors discovers pods created by KubeRay operator
 k8s_resource(
     'guessme',
-    extra_pod_selectors=[{'ray.io/node-type': 'head'}],
+    extra_pod_selectors=[
+        {'ray.io/node-type': 'head'},
+        {'ray.io/node-type': 'worker'},
+    ],
     port_forwards=[
         '8000:8000',  # Ray Serve
         '8265:8265',  # Ray Dashboard

@@ -5,4 +5,4 @@ namespace: guessme
 
 resources:
   - namespace.yaml
-  - rayservice.yaml
+  - guessme-rayservice.yaml

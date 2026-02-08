@@ -210,3 +210,12 @@ mlflow.db-journal
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Terraform
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/crash.log
+**/*.tfvars
+!**/*.tfvars.example
+**/.terraform.lock.hcl

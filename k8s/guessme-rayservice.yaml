@@ -1,0 +1,83 @@
+apiVersion: ray.io/v1
+kind: RayService
+metadata:
+  name: guessme
+  namespace: guessme
+spec:
+  serveConfigV2: |
+    applications:
+      - name: guessme
+        import_path: guessme.main:app
+        route_prefix: /
+        deployments:
+          - name: GuessmeApp
+            num_replicas: 1
+            ray_actor_options:
+              num_cpus: 0.5
+
+  rayClusterConfig:
+    rayVersion: '2.53.0'
+
+    # HEAD: Same image (Serve controller needs to import app module)
+    # num-cpus=0 prevents workload scheduling here — head only manages cluster
+    headGroupSpec:
+      rayStartParams:
+        dashboard-host: '0.0.0.0'
+        num-cpus: '0'
+      template:
+        spec:
+          containers:
+            - name: ray-head
+              image: ghcr.io/unknowntpo/guessme/backend:latest
+              imagePullPolicy: Always
+              ports:
+                - containerPort: 6379
+                  name: gcs
+                - containerPort: 8265
+                  name: dashboard
+                - containerPort: 8000
+                  name: serve
+              resources:
+                requests:
+                  cpu: "250m"
+                  memory: "1Gi"
+                limits:
+                  cpu: "500m"
+                  memory: "2Gi"
+              env:
+                - name: RAY_SERVE_ENABLE_EXPERIMENTAL_STREAMING
+                  value: "1"
+                - name: PYTHONPATH
+                  value: "/app/src"
+                - name: PATH
+                  value: "/app/.venv/bin:/usr/local/bin:/usr/bin:/bin"
+
+    # WORKER: Runs actual inference workloads
+    workerGroupSpecs:
+      - groupName: ml-workers
+        replicas: 1
+        minReplicas: 1
+        maxReplicas: 3
+        rayStartParams: {}
+        template:
+          spec:
+            containers:
+              - name: ray-worker
+                image: ghcr.io/unknowntpo/guessme/backend:latest
+                imagePullPolicy: Always
+                lifecycle:
+                  preStop:
+                    exec:
+                      command: ["/bin/sh", "-c", "ray stop"]
+                resources:
+                  requests:
+                    cpu: "500m"
+                    memory: "2Gi"
+                  limits:
+                    cpu: "1"
+                    memory: "4Gi"
+                env:
+                  - name: PYTHONPATH
+                    value: "/app/src"
+                  - name: PATH
+                    value: "/app/.venv/bin:/usr/local/bin:/usr/bin:/bin"
