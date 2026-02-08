@@ -35,8 +35,10 @@ COPY --from=builder /app/.venv /app/.venv
 # Copy source code (for live sync compatibility)
 COPY --from=builder /app/src /app/src
 
-# Copy model weights (if exists)
-COPY src/guessme/model/weights/ /app/src/guessme/model/weights/
+# Download model weights from GitHub Release
+RUN mkdir -p /app/src/guessme/model/weights && \
+    curl -fsSL -o /app/src/guessme/model/weights/mnist_cnn.pt \
+    https://github.com/unknowntpo/guessme/releases/download/model-v0.1.0/mnist_cnn.pt
 
 # Set PATH to use venv (venv bins first, then system ray)
 ENV PATH="/app/.venv/bin:$PATH"
