@@ -7,7 +7,7 @@
  *
  * Prerequisites:
  * - 00-k8s-apps layer applied
- * - Cloudflare API token with Zone:DNS:Edit + Tunnel permissions
+ * - Cloudflare API token with Zone:DNS:Edit + Tunnel + Access permissions
  *
  * Usage:
  *   export TF_VAR_cloudflare_api_token="<your-token>"
@@ -49,4 +49,24 @@ module "cloudflared_deployment" {
   secret_name = "cloudflared-credentials"
 
   depends_on = [module.cloudflare_tunnel]
+}
+
+# Zero Trust Access: protect ArgoCD behind email OTP login
+resource "cloudflare_zero_trust_access_application" "argocd" {
+  zone_id          = var.cloudflare_zone_id
+  name             = "ArgoCD Homelab"
+  domain           = "argocd-homelab.unknowntpo.com"
+  session_duration = "24h"
+}
+
+resource "cloudflare_zero_trust_access_policy" "argocd_allow_owner" {
+  zone_id        = var.cloudflare_zone_id
+  application_id = cloudflare_zero_trust_access_application.argocd.id
+  name           = "Allow owner"
+  decision       = "allow"
+  precedence     = 1
+
+  include {
+    email = var.access_allowed_emails
+  }
 }

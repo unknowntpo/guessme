@@ -19,3 +19,9 @@ variable "cloudflare_zone_id" {
   description = "Cloudflare Zone ID for unknowntpo.com"
   type        = string
 }
+
+variable "access_allowed_emails" {
+  description = "Emails allowed to access Zero Trust protected apps"
+  type        = list(string)
+  sensitive   = true
+}
