@@ -21,8 +21,9 @@ variable "domain" {
 variable "ingress_rules" {
   description = "List of ingress routes for the tunnel"
   type = list(object({
-    subdomain   = string
-    service_url = string
+    subdomain      = string
+    service_url    = string
+    no_tls_verify  = optional(bool, false)
   }))
 }
 

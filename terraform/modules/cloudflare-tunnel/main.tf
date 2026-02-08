@@ -49,6 +49,13 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "this" {
       content {
         hostname = "${ingress_rule.value.subdomain}.${var.domain}"
         service  = ingress_rule.value.service_url
+
+        dynamic "origin_request" {
+          for_each = ingress_rule.value.no_tls_verify ? [1] : []
+          content {
+            no_tls_verify = true
+          }
+        }
       }
     }
 

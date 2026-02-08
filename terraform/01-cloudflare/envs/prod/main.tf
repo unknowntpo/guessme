@@ -31,8 +31,9 @@ module "cloudflare_tunnel" {
       service_url = "http://guessme-serve-svc.guessme.svc.cluster.local:8000"
     },
     {
-      subdomain   = "argocd-homelab"
-      service_url = "https://argocd-server.argocd.svc.cluster.local:443"
+      subdomain     = "argocd-homelab"
+      service_url   = "https://argocd-server.argocd.svc.cluster.local:443"
+      no_tls_verify = true
     },
   ]
 
