@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: guessme-frontend
+  namespace: guessme
+  labels:
+    app: guessme-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: guessme-frontend
+  template:
+    metadata:
+      labels:
+        app: guessme-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: ghcr.io/unknowntpo/guessme/frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "100m"
+              memory: "128Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: guessme-frontend
+  namespace: guessme
+spec:
+  selector:
+    app: guessme-frontend
+  ports:
+    - port: 80
+      targetPort: 80
