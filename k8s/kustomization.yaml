@@ -5,5 +5,5 @@ namespace: guessme
 
 resources:
   - namespace.yaml
-  - guessme-rayservice.yaml
+  - backend-deployment.yaml
   - frontend-deployment.yaml

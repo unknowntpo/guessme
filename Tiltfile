@@ -1,18 +1,8 @@
-# Tiltfile for Guessme local K8s development with KubeRay
-
-# KubeRay operator (manages RayService CRD)
-load('ext://helm_resource', 'helm_resource', 'helm_repo')
-helm_repo('kuberay', 'https://ray-project.github.io/kuberay-helm/')
-helm_resource(
-    'kuberay-operator',
-    'kuberay/kuberay-operator',
-    flags=['--version=1.3.2'],
-    labels=['infra'],
-)
+# Tiltfile for Guessme local K8s development
 
 # Backend image
 docker_build(
-    'guessme-backend',
+    'ghcr.io/unknowntpo/guessme/backend',
     context='backend',
     dockerfile='backend/Dockerfile',
     live_update=[
@@ -21,38 +11,17 @@ docker_build(
     only=['src/', 'pyproject.toml', 'uv.lock'],
 )
 
-# Tell Tilt where to find image refs in RayService CRD (head + worker)
-k8s_image_json_path(
-    [
-        '{.spec.rayClusterConfig.headGroupSpec.template.spec.containers[*].image}',
-        '{.spec.rayClusterConfig.workerGroupSpecs[*].template.spec.containers[*].image}',
-    ],
-    api_version='ray.io/v1',
-    kind='RayService',
-)
-
-# Apply K8s manifests (RayService)
+# Apply K8s manifests
 k8s_yaml(kustomize('k8s'))
 
-# RayService is now auto-detected as workload via k8s_image_json_path
-# extra_pod_selectors discovers pods created by KubeRay operator
 k8s_resource(
-    'guessme',
-    extra_pod_selectors=[
-        {'ray.io/node-type': 'head'},
-        {'ray.io/node-type': 'worker'},
-    ],
-    port_forwards=[
-        '8000:8000',  # Ray Serve
-        '8265:8265',  # Ray Dashboard
-    ],
+    'guessme-backend',
+    port_forwards=['8000:8000'],
     labels=['backend'],
     links=[
         link('http://localhost:8000/docs', 'API Docs'),
         link('http://localhost:8000/health', 'Health'),
-        link('http://localhost:8265', 'Ray Dashboard'),
     ],
-    resource_deps=['kuberay-operator'],
 )
 
 # Frontend: Vite dev server (port 5173)
@@ -62,12 +31,4 @@ local_resource(
     labels=['frontend'],
     links=[link('http://localhost:5173', 'Frontend UI')],
     deps=['frontend/src', 'frontend/package.json'],
-)
-
-# MLflow: Experiment tracking UI (port 5001)
-local_resource(
-    'mlflow',
-    serve_cmd='cd backend && uv run mlflow ui --backend-store-uri sqlite:///mlflow.db --port 5001',
-    labels=['observability'],
-    links=[link('http://localhost:5001', 'MLflow UI')],
 )

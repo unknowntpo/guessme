@@ -1,6 +1,10 @@
-"""Tests for training functions."""
+"""Tests for training functions (requires 'train' dependency group)."""
 
-from guessme.model.train import get_dataloaders, get_device
+import pytest
+
+mlflow = pytest.importorskip("mlflow", reason="requires train deps (uv sync --group train)")
+
+from guessme.model.train import get_dataloaders, get_device  # noqa: E402
 
 
 def test_get_device():
